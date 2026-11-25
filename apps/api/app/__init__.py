@@ -2,6 +2,7 @@
 """Load private local settings before API, migrations, or worker imports."""
 import os
 from pathlib import Path
+from tempfile import gettempdir
 
 from dotenv import load_dotenv
 
@@ -15,3 +16,8 @@ load_dotenv(_env_dir / '.env', override=False)
 
 def public_demo_enabled() -> bool:
     return os.getenv('HOSTING_TIER') == 'vercel_demo'
+
+
+def image_storage_root() -> Path:
+    default = Path(gettempdir()) / 'agrosphere-demo' if public_demo_enabled() else Path('storage')
+    return Path(os.getenv('IMAGE_STORAGE_PATH', str(default)))

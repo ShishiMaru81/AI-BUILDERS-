@@ -12,7 +12,6 @@ from contextlib import asynccontextmanager
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
-from tempfile import gettempdir
 from threading import Lock
 from time import monotonic
 from typing import Annotated, Any, Literal
@@ -30,7 +29,7 @@ from sqlalchemy import delete, func, select, text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session as DBSession
 
-from . import public_demo_enabled
+from . import image_storage_root, public_demo_enabled
 from .identity import require_user, user_view
 from .market_privacy import owner_export as market_owner_export, erase_account as erase_market_account
 from .market_auth import router as auth_router, AuthLimiter
@@ -87,8 +86,7 @@ from .services import (
     provenance,
 )
 
-storage_default = Path(gettempdir()) / 'agrosphere-demo' if public_demo_enabled() else Path('storage')
-storage = Path(os.getenv('IMAGE_STORAGE_PATH', str(storage_default)))
+storage = image_storage_root()
 storage.mkdir(parents=True, exist_ok=True)
 Image.MAX_IMAGE_PIXELS = 20_000_000
 APP_VERSION = '1.0.0'

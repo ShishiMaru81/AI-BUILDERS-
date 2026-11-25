@@ -1,5 +1,5 @@
 """Integrated fixed-price marketplace with explicitly optional auction lots."""
-import io,os,warnings
+import io,warnings
 from decimal import Decimal
 from datetime import timedelta,timezone
 from pathlib import Path
@@ -10,6 +10,7 @@ from fastapi.responses import FileResponse,Response
 from PIL import Image,ImageOps,UnidentifiedImageError
 from pydantic import BaseModel,ConfigDict,Field,ValidationError
 from sqlalchemy import delete,func,or_,select
+from . import image_storage_root
 from .db import Record,Token,User
 from .identity import optional_user,require_user,user_view
 from .market_models import *
@@ -19,7 +20,7 @@ from . import market_service as s
 router=APIRouter(prefix='/api/v1',tags=['KrishiMarket marketplace'])
 Who=Annotated[User,Depends(require_user)];Maybe=Annotated[User|None,Depends(optional_user)]
 Idem=Annotated[str|None,Header(alias='Idempotency-Key')]
-IMAGE_ROOT=Path(os.getenv('IMAGE_STORAGE_PATH','storage'))/'marketplace'
+IMAGE_ROOT=image_storage_root()/'marketplace'
 IMAGE_ROOT.mkdir(parents=True,exist_ok=True)
 
 def get_product(db,id,user=None):
