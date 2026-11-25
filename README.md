@@ -2,7 +2,9 @@
 
 A software-first agricultural workspace: AgroDoctor crop-photo screening, FloodCrop rainfall preparedness, KrishiMarket net selling comparisons, shared farms, actions and future sensor ingestion.
 
-Open **Farm tools** as a farmer for the crop calendar, in-app alerts and reminders, plot cash ledger, storage batches, community map and encrypted offline notebook. **Farmer Chat** also accepts voice drafts on supported browsers. See the [farm tools plan and release scope](docs/farm-tools-plan.md).
+Open **Farm tools** as a farmer for the crop calendar, in-app alerts and reminders, plot cash ledger, storage batches, community map and encrypted offline notebook. **Farmer Chat** accepts voice drafts on supported browsers and retrieves [agricultural guidance with source links](docs/farmer-chat-rag.md). See the [farm tools plan and release scope](docs/farm-tools-plan.md).
+
+Connect a local MCP client to the [AgroSphere read-only tools](docs/agrosphere-mcp.md) for plot briefs, district prices and storage summaries.
 
 For a public website, see [Netlify + free backend deployment](docs/netlify-deployment.md). The root `netlify.toml` configures the frontend and `render.yaml` prepares the separate free Python/PostgreSQL demo backend. Cloud deployment requires account authorization and the real HTTPS backend URL; localhost Docker URLs cannot serve Netlify visitors.
 

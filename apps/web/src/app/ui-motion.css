@@ -1,0 +1,236 @@
+.account-access {
+  gap: clamp(20px, 4vw, 64px);
+}
+
+.account-brand {
+  position: sticky;
+  top: 24px;
+  align-self: start;
+  isolation: isolate;
+  overflow: hidden;
+  justify-content: flex-end;
+  min-height: clamp(480px, 74svh, 720px);
+  padding: clamp(30px, 4vw, 60px);
+}
+
+.account-farm-art {
+  position: absolute;
+  z-index: -2;
+  inset: 0;
+  background: #214533 url('/account-farm-morning.webp') 60% 56% / cover no-repeat;
+  animation: account-farm-arrive 2.8s cubic-bezier(.17, .65, .28, 1) both;
+}
+
+.account-brand::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background: linear-gradient(0deg, #0c291f 0%, #0a271cca 33%, #0a271c14 78%),
+    linear-gradient(110deg, #0b2d23c7, transparent 83%);
+}
+
+.account-brand-copy {
+  animation: ui-rise .52s ease-out both;
+}
+
+.account-headline-line {
+  display: block;
+  overflow: hidden;
+  line-height: 1.16;
+}
+
+.account-headline-line > span {
+  display: block;
+  animation: account-headline-enter .76s cubic-bezier(.18, .74, .22, 1) both;
+}
+
+.account-headline-line + .account-headline-line > span {
+  animation-delay: .22s;
+}
+
+.account-brand .account-language {
+  display: inline-flex;
+  color: #f0ffe9;
+  text-underline-offset: 4px;
+}
+
+.account-form {
+  animation: ui-rise .42s ease-out both;
+}
+
+.account-mode {
+  position: relative;
+  isolation: isolate;
+}
+
+.account-mode::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 4px auto 4px 4px;
+  width: calc((100% - 14px) / 2);
+  border-radius: 7px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  transition: transform .28s cubic-bezier(.2, .75, .3, 1);
+}
+
+.account-mode[data-purpose='signup']::before {
+  transform: translateX(calc(100% + 6px));
+}
+
+.account-mode button {
+  min-width: 0;
+  transition: color .18s ease;
+}
+
+.account-mode button[aria-pressed='true'] {
+  background: transparent;
+  box-shadow: none;
+}
+
+.account-fields input,
+.account-fields select,
+.account-fields textarea {
+  transition: box-shadow .2s ease, border-color .2s ease;
+}
+
+.account-fields :is(input, select, textarea):focus-visible {
+  box-shadow: 0 0 0 5px #4a9e7424;
+}
+
+.account-fields .btn.primary svg:last-child {
+  transition: transform .2s ease;
+}
+
+.account-fields .btn.primary:hover:not(:disabled) svg:last-child {
+  transform: translateX(3px);
+}
+
+.account-spinner {
+  animation: ui-spin .85s linear infinite;
+}
+
+.ui-reveal {
+  animation: ui-rise .36s cubic-bezier(.2, .72, .25, 1) both;
+}
+
+.ui-plot-panel {
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.doctor-preview {
+  display: grid;
+  position: relative;
+  max-width: 100%;
+  overflow: hidden;
+  isolation: isolate;
+  border-radius: 7px;
+}
+
+.doctor-preview img {
+  display: block;
+}
+
+.doctor-preview[data-checking='true']::after {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 34%;
+  pointer-events: none;
+  border-bottom: 2px solid #abffca;
+  background: linear-gradient(0deg, #8ceca553, transparent 95%);
+  animation: doctor-scan 1.2s ease-in-out 2 alternate both;
+}
+
+.rain-icon {
+  position: relative;
+  overflow: hidden;
+}
+
+.rain-icon[data-refreshing='true'] svg {
+  animation: rain-fetch 1s ease-in-out 2;
+}
+
+.rain-result-chart .recharts-area {
+  animation: chart-sweep .66s cubic-bezier(.2, .65, .25, 1) both;
+}
+
+.net-result.ui-reveal + .net-result.ui-reveal {
+  animation-delay: .045s;
+}
+
+@keyframes account-farm-arrive {
+  from { transform: scale(1.095); opacity: .66; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes account-headline-enter {
+  from { transform: translateY(100%); }
+  to { transform: none; }
+}
+
+@keyframes ui-rise {
+  from { opacity: .8; transform: translateY(7px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes ui-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes doctor-scan {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(195%); }
+}
+
+@keyframes rain-fetch {
+  50% { transform: translateY(2px) scale(.94); opacity: .65; }
+}
+
+@keyframes chart-sweep {
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+
+@media (max-width: 740px) {
+  .account-access { gap: 18px; }
+  .account-brand { position: relative; top: auto; min-height: 240px; padding: 24px; }
+  .account-farm-art { background-position: 65% 62%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .account-farm-art,
+  .account-brand-copy,
+  .account-headline-line > span,
+  .account-form,
+  .account-spinner,
+  .ui-reveal,
+  .doctor-preview[data-checking='true']::after,
+  .rain-icon[data-refreshing='true'] svg,
+  .rain-result-chart .recharts-area {
+    animation: none;
+  }
+
+  .account-mode::before,
+  .account-mode button,
+  .account-fields :is(input, select, textarea),
+  .account-fields .btn.primary svg:last-child {
+    transition: none;
+  }
+
+  .account-fields .btn.primary:hover:not(:disabled) svg:last-child {
+    transform: none;
+  }
+
+  .doctor-preview[data-checking='true']::after {
+    inset: 5px;
+    height: auto;
+    border: 1px solid #abffca;
+    border-radius: 4px;
+    background: none;
+  }
+}

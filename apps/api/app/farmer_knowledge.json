@@ -1,0 +1,123 @@
+[
+  {
+    "id": "leaf-early-blight",
+    "topics": ["health"],
+    "crops": ["13", "52"],
+    "terms": ["early blight", "alternaria", "target rings", "concentric rings", "brown rings", "ringed spots", "lower leaves", "older leaves", "পাতায় গোল দাগ", "বলয়ের মতো", "চক্রাকার", "বৃত্তাকার", "আগাম ধসা", "আগাম ধ্বসা", "nicher pata", "gol dag"],
+    "publisher": "University of Minnesota Extension",
+    "url": "https://extension.umn.edu/agriculture/specialty-crops/vegetable-farming/disease-management/early-blight-in-tomato-and-potato",
+    "en": {"title": "Early blight scouting", "text": "Early blight often starts on older leaves close to the ground. Larger brown spots can develop several rings around the same centre, sometimes with yellowing around the spot. Check older leaves for the ring pattern before treating it as a possible explanation."},
+    "bn": {"title": "আগাম ধসার লক্ষণ দেখা", "text": "আগাম ধসার লক্ষণ অনেক সময় গাছের নিচের পুরোনো পাতায় শুরু হয়। বড় বাদামি দাগে একই কেন্দ্রের চারপাশে কয়েকটি বলয় এবং দাগের পাশে হলদে অংশ দেখা যেতে পারে। সম্ভাব্য কারণ হিসেবে ধরার আগে পুরোনো পাতায় এই বলয়গুলো মিলিয়ে দেখুন।"}
+  },
+  {
+    "id": "leaf-late-blight",
+    "topics": ["health"],
+    "crops": ["13", "52"],
+    "terms": ["late blight", "irregular patches", "water soaked", "white fuzz", "white growth", "pale growth", "underside", "wet leaves", "নাবি ধসা", "নাবি ধ্বসা", "অনিয়মিত দাগ", "সাদা আবরণ", "সাদা আস্তরণ", "পাতার নিচে", "ভেজা দাগ", "patar niche", "shada aboron"],
+    "publisher": "University of Minnesota Extension",
+    "url": "https://extension.umn.edu/agriculture/specialty-crops/vegetable-farming/disease-management/late-blight",
+    "en": {"title": "Late blight scouting", "text": "Late blight can produce irregular dark patches on potato or tomato leaves. In humid conditions, pale growth can appear near the edge of a lesion, especially on the underside. Check a fresh patch and photograph both sides of the leaf for comparison."},
+    "bn": {"title": "নাবি ধসার লক্ষণ দেখা", "text": "নাবি ধসায় আলু বা টমেটোর পাতায় অনিয়মিত কালচে দাগ হতে পারে। আর্দ্র আবহাওয়ায় দাগের কিনারা ও পাতার নিচে ফিকে সাদা আস্তরণ দেখা যেতে পারে। নতুন দাগের কাছে পাতার দুই পাশ দেখে তুলনার জন্য ছবি তুলুন।"}
+  },
+  {
+    "id": "tomato-septoria-spots",
+    "topics": ["health"],
+    "crops": ["13"],
+    "terms": ["septoria", "grey center", "gray center", "gray centres", "tan center", "dark edges", "black specks", "small spots", "ধূসর কেন্দ্র", "কালো বিন্দু", "ছোট দাগ", "সেপ্টোরিয়া", "ছাই রঙের", "choto dag", "kalo bindu"],
+    "publisher": "University of Minnesota Extension",
+    "url": "https://apps.extension.umn.edu/garden/diagnose/plant/vegetable/tomato/leavesspots.html",
+    "en": {"title": "Septoria leaf spot comparison", "text": "Septoria on tomato leaves can appear as many small spots with a darker edge and a grey or tan centre. Tiny black specks can develop inside older spots. Compare a sharp close-up with the reference before deciding which leaf spot is plausible."},
+    "bn": {"title": "টমেটোর সেপ্টোরিয়া পাতার দাগ", "text": "টমেটোর পাতায় সেপ্টোরিয়ার ছোট দাগগুলোর কিনারা গাঢ় এবং মাঝখান ধূসর বা হালকা বাদামি হতে পারে। পুরোনো দাগের ভেতরে ক্ষুদ্র কালো বিন্দু দেখা যেতে পারে। সম্ভাব্য কারণ বোঝার আগে কাছের পরিষ্কার ছবি নির্দেশিকার সঙ্গে মেলান।"}
+  },
+  {
+    "id": "tomato-blossom-end",
+    "topics": ["health", "storage"],
+    "crops": ["13"],
+    "terms": ["blossom end rot", "blossom-end rot", "opposite the stem", "bottom of tomato", "fruit bottom", "dark sunken bottom", "ফলের নিচে", "ফুলের দিক", "ফুলের প্রান্ত", "ডাঁটার বিপরীত দিকে", "টমেটোর তলায়"],
+    "publisher": "University of Minnesota Extension",
+    "url": "https://extension.umn.edu/garden-and-home/yard-and-garden/gardening-in-minnesota/yard-and-garden-problems/tomato-disorders",
+    "en": {"title": "Tomato blossom-end rot comparison", "text": "A sunken dark patch at the end opposite the stem can be consistent with blossom-end rot in tomatoes. Note where the patch starts and how evenly the soil has been watered. Confirm the pattern before attributing the damage to a disease."},
+    "bn": {"title": "টমেটোর ফুলের প্রান্তে পচন", "text": "ডাঁটার বিপরীত প্রান্তে বসে যাওয়া কালচে দাগ টমেটোর ব্লসম-এন্ড রটের সঙ্গে মিলতে পারে। দাগ কোথা থেকে শুরু হয়েছে এবং মাটি নিয়মিত সমানভাবে ভেজানো হয়েছে কি না দেখুন। রোগ ধরে নেওয়ার আগে লক্ষণটি মিলিয়ে নিন।"}
+  },
+  {
+    "id": "potato-tuber-sorting",
+    "topics": ["storage"],
+    "crops": ["52"],
+    "terms": ["soft potatoes", "rotten potatoes", "rot", "damaged tubers", "sorting", "storage", "soft spots", "bruise", "picking out", "ventilation", "পচা আলু", "নরম আলু", "পচন", "বাছাই", "বস্তা", "দাগ", "সংরক্ষণ", "pocha alu", "alu noshto", "alu poche"],
+    "publisher": "University of Minnesota Extension",
+    "url": "https://extension.umn.edu/agriculture/specialty-crops/commercial-fruit-production/postharvest-handling-of-fruit-and-vegetable-crops-in-minnesota#potatoes-and-sweet-potatoes",
+    "en": {"title": "Sorting potatoes for storage", "text": "Sort potatoes before longer storage. Set aside tubers with soft patches, dark cavities, bruises, or cuts that have not healed. For curing, air needs to circulate around the lot."},
+    "bn": {"title": "সংরক্ষণের আগে আলু বাছাই", "text": "দীর্ঘদিন রাখার আগে আলু বাছাই করুন। নরম দাগ, কালচে গর্ত, থেঁতলানো অংশ বা শুকায়নি এমন কাটা দাগ থাকা আলু আলাদা করুন। ক্ষত শুকানোর সময় চালানের চারপাশে বাতাস চলাচলের ব্যবস্থা রাখুন।"}
+  },
+  {
+    "id": "fresh-produce-field-handling",
+    "topics": ["storage"],
+    "crops": ["13", "15", "19"],
+    "terms": ["after harvest", "transport delay", "keep fresh", "shade", "bruising", "crates", "handling", "storage", "ফসল তোলার পর", "রোদে", "ছায়ায়", "ছায়ায়", "ঝুড়ি", "পরিবহনে দেরি", "সংরক্ষণ", "থেঁতলে", "chaya", "jhurite"],
+    "publisher": "FAO",
+    "url": "https://www.fao.org/4/ae075e/ae075e03.htm",
+    "en": {"title": "Handling fresh produce after harvest", "text": "Handle fresh vegetables gently and use clean containers with smooth interiors. When transport is delayed, keep the filled containers shaded. Reducing transfers between containers also helps limit bruising."},
+    "bn": {"title": "ফসল তোলার পর তাজা সবজি রাখা", "text": "তাজা সবজি সাবধানে ধরুন এবং ভেতরটা মসৃণ এমন পরিষ্কার পাত্র ব্যবহার করুন। গাড়ি আসতে দেরি হলে ভরা পাত্র ছায়ায় রাখুন। বারবার এক পাত্র থেকে অন্য পাত্রে ঢাললে থেঁতলানোর ঝুঁকি বাড়ে।"}
+  },
+  {
+    "id": "rice-drying-before-storage",
+    "topics": ["storage"],
+    "crops": ["7", "74", "75", "76"],
+    "terms": ["wet grain", "rice storage", "grain drying", "dry rice", "grain moisture", "storage", "damp rice", "ভেজা ধান", "ধান শুকানো", "ধান শুকিয়ে", "ধান রাখ", "আর্দ্রতা", "সংরক্ষণ", "dhan shukano", "bheja dhan"],
+    "publisher": "International Rice Research Institute",
+    "url": "https://www.ricetoday.irri.org/dried-to-perfection/",
+    "en": {"title": "Dry rice grain before storage", "text": "Dry freshly harvested rice and check grain moisture before putting it into storage. Keep wet grain separate from dry grain so the dry lot does not take up moisture."},
+    "bn": {"title": "সংরক্ষণের আগে ধান শুকানো", "text": "নতুন কাটা ধান শুকিয়ে সংরক্ষণের আগে দানার আর্দ্রতা মাপুন। ভেজা ও শুকনা ধান আলাদা রাখুন, যাতে শুকনা ধানে আবার আর্দ্রতা না আসে।"}
+  },
+  {
+    "id": "rain-field-drainage",
+    "topics": ["weather", "irrigation", "briefing"],
+    "terms": ["heavy rain", "incoming rain", "before rain", "drainage", "blocked drain", "drains", "waterlogging", "standing water", "field puddles", "water sits", "ভারী বৃষ্টি", "বৃষ্টির আগে", "পানি জমে", "পানি জমলে", "জলাবদ্ধতা", "নিষ্কাশন", "নালা", "bristir age", "brishtir age", "pani jome", "nala"],
+    "publisher": "Bangladesh Agro-Meteorological Information Service",
+    "url": "https://www.bamis.gov.bd/bn/bulletin/view/46022/",
+    "en": {"title": "Field drainage before heavy rain", "text": "General preparation from an earlier BAMIS advisory: check whether low parts of the field can drain before heavy rain. Clear blocked drainage paths so excess water can leave the crop area. Use today's plot forecast to decide whether this precaution is relevant now."},
+    "bn": {"title": "ভারী বৃষ্টির আগে পানি নিষ্কাশন", "text": "বামিসের একটি আগের বুলেটিনের সাধারণ প্রস্তুতি: ভারী বৃষ্টির আগে জমির নিচু অংশ থেকে পানি বের হওয়ার পথ আছে কি না দেখুন। বন্ধ নালা পরিষ্কার করুন, যাতে ফসলের জমি থেকে বাড়তি পানি বের হয়। এখন এই প্রস্তুতি দরকার কি না, তা জমির বর্তমান পূর্বাভাস দেখে ঠিক করুন।"}
+  },
+  {
+    "id": "irrigation-root-zone",
+    "topics": ["irrigation"],
+    "terms": ["root zone", "roots", "soil moisture", "surface dry", "when to water", "irrigation", "water again", "dry soil", "সেচ", "পানি দেব", "মাটি শুকনা", "মাটি শুকনো", "শিকড়ের", "শিকড়ের", "মাটির আর্দ্রতা", "sech", "mati veja", "mati shukna"],
+    "publisher": "USDA Natural Resources Conservation Service",
+    "url": "https://www.nrcs.usda.gov/sites/default/files/2023-01/7385.pdf",
+    "en": {"title": "Checking moisture at root depth", "text": "Check soil moisture down to the crop's root zone in several representative places. Feel and appearance depend on soil texture, so a dry surface alone does not establish that roots need water. Compare the root-zone reading with the crop's needs before deciding to irrigate."},
+    "bn": {"title": "শিকড়ের গভীরতায় মাটির আর্দ্রতা", "text": "জমির কয়েকটি প্রতিনিধিত্বমূলক স্থানে ফসলের শিকড় যত গভীরে যায়, ততটা পর্যন্ত মাটির আর্দ্রতা দেখুন। মাটি কেমন লাগবে তা মাটির ধরনেও বদলায়। শুধু ওপরটা শুকনো দেখে সেচের সিদ্ধান্ত না নিয়ে শিকড়ের কাছে আর্দ্রতা ও ফসলের চাহিদা মিলিয়ে দেখুন।"}
+  },
+  {
+    "id": "tomato-nursery-drainage",
+    "topics": ["weather", "irrigation", "briefing"],
+    "crops": ["13"],
+    "stages": ["seedling"],
+    "terms": ["nursery", "seedling", "seedlings", "seedbed", "drainage", "চারা", "বীজতলা", "নিষ্কাশন", "chara"],
+    "publisher": "Bangladesh Agro-Meteorological Information Service",
+    "url": "https://www.bamis.gov.bd/bulletin/view/47779",
+    "en": {"title": "Tomato nursery drainage", "text": "An earlier BAMIS advisory recommends raised nursery beds for tomato seedlings and drainage to prevent waterlogging. Check whether water collects around the nursery after rain and whether it can drain away."},
+    "bn": {"title": "টমেটোর বীজতলায় পানি নিষ্কাশন", "text": "বামিসের একটি আগের বুলেটিনে টমেটোর চারার জন্য উঁচু বীজতলা এবং পানি বের হওয়ার ব্যবস্থা রাখার পরামর্শ দেওয়া হয়েছে। বৃষ্টির পর চারার আশপাশে পানি জমছে কি না এবং বের হওয়ার পথ আছে কি না দেখুন।"}
+  },
+  {
+    "id": "dhaka-tomato-rabi-calendar",
+    "topics": ["calendar", "briefing"],
+    "crops": ["13"],
+    "districts": ["Narayanganj", "Gazipur", "Narsingdi", "Munshiganj", "Manikganj", "Tangail"],
+    "terms": ["rabi", "winter", "calendar", "planting", "sowing", "season", "flowering", "transplant", "রবি", "শীতকাল", "পঞ্জিকা", "বপন", "রোপণ", "ফুল", "kobe lagabo", "robi"],
+    "publisher": "Bangladesh Agro-Meteorological Information Service",
+    "url": "https://www.bamis.gov.bd/res/public/calendars/2023/03/16/26454.pdf#page=1",
+    "en": {"title": "Dhaka-region Rabi tomato calendar", "text": "The regional Rabi tomato calendar spans September to February, covering establishment, growth, flowering and fruiting, and harvest. Use it as a seasonal reference alongside the date and growth stage actually recorded for this plot."},
+    "bn": {"title": "ঢাকা অঞ্চলের রবি টমেটো পঞ্জিকা", "text": "এই অঞ্চলের রবি টমেটোর পঞ্জিকায় সেপ্টেম্বর থেকে ফেব্রুয়ারি পর্যন্ত চারা প্রতিষ্ঠা, বৃদ্ধি, ফুল ও ফল ধরা এবং ফসল তোলার পর্যায় দেখানো হয়েছে। জমির নিজের রোপণের তারিখ ও বর্তমান বৃদ্ধির পর্যায়ের পাশাপাশি এটিকে মৌসুমি তথ্য হিসেবে ব্যবহার করুন।"}
+  },
+  {
+    "id": "dhaka-potato-stage-calendar",
+    "topics": ["calendar", "briefing"],
+    "crops": ["52"],
+    "districts": ["Dhaka", "Tangail", "Gazipur", "Narsingdi", "Narayanganj", "Munshiganj", "Manikganj"],
+    "terms": ["calendar", "potato season", "planting", "sowing", "tuber formation", "bulking", "harvest stage", "পঞ্জিকা", "আলু রোপণ", "আলু বপন", "কন্দ গঠন", "কন্দ বৃদ্ধি", "ফসল তোলার পর্যায়", "kondo", "alu lagano"],
+    "publisher": "Bangladesh Agro-Meteorological Information Service",
+    "url": "https://www.bamis.gov.bd/res/public/calendars/2019/11/14/8852.pdf#page=1",
+    "en": {"title": "Dhaka-region potato stage calendar", "text": "The Dhaka-region potato calendar spans October through January. It shows sprouting and establishment, leaf growth, tuber formation and enlargement, then maturity and harvest. Compare those stages with your recorded planting date and the crop you can see."},
+    "bn": {"title": "ঢাকা অঞ্চলের আলুর বৃদ্ধির পঞ্জিকা", "text": "ঢাকা অঞ্চলের আলুর পঞ্জিকায় অক্টোবর থেকে জানুয়ারি পর্যন্ত অঙ্কুর ও চারা, পাতার বৃদ্ধি, কন্দ ধরা ও বড় হওয়া এবং শেষে পরিপক্বতা ও ফসল তোলার পর্যায় রয়েছে। আপনার রোপণের তারিখ ও মাঠে দেখা পর্যায়ের সঙ্গে এটি মিলিয়ে দেখুন।"}
+  }
+]

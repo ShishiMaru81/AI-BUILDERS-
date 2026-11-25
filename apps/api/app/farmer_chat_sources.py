@@ -405,13 +405,21 @@ def _storage(crop_id, bn):
                    "এই ফসলের নির্দিষ্ট সংরক্ষণ পদ্ধতি যাচাই করা যায়নি।" if bn else "Source directory. Crop-specific storage guidance could not be verified.", "directory")
 
 
+def resolve_crop(crop: str) -> str | None:
+    return _CROP_IDS.get(_key(crop or ""))
+
+
+def resolve_district(district: str) -> District | None:
+    place = re.sub(r"(?:\s+(?:district|জেলা))?(?:\s*,\s*(?:bangladesh|বাংলাদেশ))?$", "", (district or "").strip(), flags=re.I)
+    return _DISTRICTS.get(_key(place))
+
+
 def collect_sources(topic: str, crop: str, district: str, locale: str) -> list[dict]:
     """Return documented facts and labelled directories; all links are publisher-owned."""
     bn = (locale or "").lower().startswith("bn")
     deadline = monotonic() + 7.0
-    crop_id = _CROP_IDS.get(_key(crop or ""))
-    place = re.sub(r"(?:\s+(?:district|জেলা))?(?:\s*,\s*(?:bangladesh|বাংলাদেশ))?$", "", (district or "").strip(), flags=re.I)
-    d = _DISTRICTS.get(_key(place))
+    crop_id = resolve_crop(crop)
+    d = resolve_district(district)
     if topic == "weather":
         return [_bulletin(d, crop_id, bn, deadline)]
     if topic == "calendar":

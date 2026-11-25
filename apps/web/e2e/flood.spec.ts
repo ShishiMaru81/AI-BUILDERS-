@@ -52,6 +52,7 @@ test('live outages have retry; switching to an unlocated plot resets the source'
   await page.getByLabel('Weather data mode').selectOption('LIVE');
   await expect(page.getByRole('alert').filter({hasText:'Weather unavailable'})).toBeVisible();
   await expect(page.getByText('Monitor conditions',{exact:true})).toHaveCount(0);
+  await expect(page.getByTestId('rain-outlook-scene')).toHaveCount(0);
   fail=false;
   await page.getByRole('button',{name:'Retry forecast'}).click();
   await expect(page.getByText('Test forecast',{exact:true})).toBeVisible();
@@ -60,4 +61,48 @@ test('live outages have retry; switching to an unlocated plot resets the source'
   await expect(page.locator('option[value="LIVE"]')).toBeDisabled();
   await expect(page.getByText('Test forecast',{exact:true})).toHaveCount(0);
   expect(invalid).toEqual([]);
+});
+
+test('the forecast scene follows the selected window and reduced-motion preference', async({page,request})=>{
+  const demo=await request.post(api+'/auth/demo',{data:{}});
+  expect(demo.ok()).toBeTruthy();
+  const {token}=await demo.json();
+  try {
+    await page.setViewportSize({width:390,height:840});
+    await page.addInitScript(value=>localStorage.setItem('agrosphere-token',value),token);
+    await page.route('**/flood/plots/*/outlook?*', route=>{
+      const horizon=Number(new URL(route.request().url()).searchParams.get('horizon_hours'));
+      const expired=horizon===72;
+      const total=horizon===24?0:12;
+      return route.fulfill({json:{
+        hourly:[{time:'2026-11-25T00:00:00Z',rain_mm:total}],
+        total_mm:total,horizon_hours:horizon,threshold_mm:75,level:'monitor',
+        reasons:[],disclaimer:'Simulated QA fixture',is_expired:expired,
+        meta:{mode:'DEMO',source_name:'QA simulation',is_simulated:true,freshness:expired?'expired':'fresh'},
+      }});
+    });
+    await page.goto('/en/floodcrop');
+    const scene=page.getByTestId('rain-outlook-scene');
+    const rain=page.getByTestId('rain-outlook-streaks');
+    await expect(scene).toBeVisible();
+    await expect(page.getByText('Simulated scenario',{exact:true})).toBeVisible();
+    await expect(rain).toBeVisible();
+    expect(await rain.evaluate(el=>getComputedStyle(el,'::before').animationName)).not.toBe('none');
+    await page.emulateMedia({reducedMotion:'reduce'});
+    expect(await rain.evaluate(el=>getComputedStyle(el,'::before').animationName)).toBe('none');
+    const window=page.getByRole('group',{name:'Forecast window'});
+    const dry=window.getByRole('button',{name:'24 hours',exact:true});
+    await dry.click();
+    await expect(dry).toHaveAttribute('aria-pressed','true');
+    await expect(page.locator('.rain-total')).toHaveText('0mm');
+    await expect(scene).toBeVisible();
+    await expect(rain).toHaveCount(0);
+    await window.getByRole('button',{name:'72 hours',exact:true}).click();
+    await expect(page.getByText('Forecast expired',{exact:true})).toBeVisible();
+    await expect(scene).toHaveCount(0);
+    const viewport=await page.evaluate(()=>({width:document.documentElement.clientWidth,content:document.documentElement.scrollWidth}));
+    expect(viewport.content).toBeLessThanOrEqual(viewport.width);
+  } finally {
+    await request.delete(api+'/me',{headers:{Authorization:'Bearer '+token}});
+  }
 });

@@ -1,0 +1,128 @@
+.windows {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.windows::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 4px auto 4px 4px;
+  width: calc((100% - 8px) / 3);
+  border-radius: 5px;
+  background: var(--mint);
+  transform: translateX(calc(var(--window) * 100%));
+  transition: transform .3s cubic-bezier(.2, .72, .25, 1);
+}
+
+.windows button[aria-pressed='true'] {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.scene {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  align-self: stretch;
+  min-height: 104px;
+  height: clamp(104px, 11vw, 146px);
+  margin: 14px 0 0;
+  border-radius: 10px;
+  background: linear-gradient(175deg, #113c3b, #1d655b 70%);
+  animation: scene-arrive .48s ease-out both;
+}
+
+.hills {
+  position: absolute;
+  inset: 8px 0 0;
+  background:
+    radial-gradient(ellipse 64% 79% at 11% 104%, #448d74 99%, transparent 100%),
+    radial-gradient(ellipse 56% 67% at 90% 103%, #4a9a81 99%, transparent 100%),
+    radial-gradient(ellipse 44% 63% at 51% 112%, #7ab2a2 99%, transparent 100%);
+}
+
+.fields {
+  position: absolute;
+  inset: auto -12% -8px;
+  height: 41%;
+  border-top: 1px solid #8fbba284;
+  background:
+    repeating-linear-gradient(176deg, transparent 0 8px, #7fb7a163 9px 10px, transparent 11px 15px),
+    linear-gradient(100deg, #235f4d, #143c34);
+  transform: skewX(-28deg);
+}
+
+.cloud {
+  position: absolute;
+  top: 28%;
+  left: 51%;
+  width: 64px;
+  height: 16px;
+  border-radius: 999px;
+  background: #a3c7ca;
+  box-shadow: 56px -12px 0 -4px #759fa797, -54px 8px 0 -4px #86b3b67a;
+  transform: translateX(-50%);
+  animation: cloud-arrive .82s cubic-bezier(.2, .6, .32, 1) both;
+}
+
+.cloud::before,
+.cloud::after {
+  content: '';
+  position: absolute;
+  bottom: 5px;
+  border-radius: 50%;
+  background: inherit;
+}
+
+.cloud::before { left: 11px; width: 26px; height: 26px; }
+.cloud::after { right: 10px; width: 21px; height: 21px; }
+
+.rain {
+  position: absolute;
+  top: 38%;
+  left: calc(50% - 54px);
+  width: 108px;
+  height: 53%;
+  -webkit-mask-image: linear-gradient(transparent, #000 22%, #000 65%, transparent);
+  mask-image: linear-gradient(transparent, #000 22%, #000 65%, transparent);
+  transform: skewX(-16deg);
+}
+
+.rain::before {
+  content: '';
+  position: absolute;
+  inset: -28px 0 0;
+  opacity: .65;
+  background:
+    repeating-linear-gradient(0deg, #afdadd 0 8px, transparent 10px 28px) 10px 0 / 1px 100% no-repeat,
+    repeating-linear-gradient(0deg, #c0e6e1 0 10px, transparent 12px 30px) 31px 5px / 1px 100% no-repeat,
+    repeating-linear-gradient(0deg, #b4e2e0 0 12px, transparent 13px 31px) 53px 14px / 1px 100% no-repeat,
+    repeating-linear-gradient(0deg, #c0e6e1 0 10px, transparent 12px 27px) 73px 8px / 1px 100% no-repeat,
+    repeating-linear-gradient(0deg, #afdadd 0 8px, transparent 10px 28px) 94px 12px / 1px 100% no-repeat;
+  animation: rain-fall .74s linear 3;
+}
+
+@keyframes scene-arrive {
+  from { opacity: .72; }
+  to { opacity: 1; }
+}
+
+@keyframes cloud-arrive {
+  from { transform: translateX(calc(-50% - 21px)); }
+  to { transform: translateX(-50%); }
+}
+
+@keyframes rain-fall {
+  from { transform: translateY(0); }
+  to { transform: translateY(25px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .windows::before { transition: none; }
+  .scene,
+  .cloud,
+  .rain::before { animation: none; }
+}

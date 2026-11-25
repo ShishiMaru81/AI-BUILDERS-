@@ -1,3 +1,37 @@
+## Farmer Chat searches published guidance · 25 November 2026
+
+Farmer Chat searches 12 bilingual guidance passages for crop scouting, storage, field drainage, soil moisture and regional crop calendars. It filters by crop, district or stage where applicable and can use a local multilingual E5 encoder to rerank matches. Groq receives the relevant passages alongside the existing farm evidence. Answers link to the passages cited by the model. If the answer is unavailable or fails citation checks, the chat can show the relevant published passage directly.
+
+Live Groq returned linked guidance for tomato early blight and Septoria symptoms, potato late blight symptoms in Bangla, and sorting damaged potatoes. A real API request retained both tomato references when the conversation was reopened. A 390-pixel browser check showed the published passage and source link with Groq disabled, including after reload. The bundled library covers selected questions. Regional calendars are seasonal references and the chat's symptom comparisons require field confirmation. [Setup and verification](farmer-chat-rag.md)
+
+The production build, 342 API tests, and 91 web unit tests passed. All Farmer Chat browser tests passed. The full browser suite passed 49 of 50 tests, with the existing private marketplace photo-gallery fixture failing at its loading-state assertion.
+
+## FloodCrop forecast motion · 25 November 2026
+
+The forecast-window selector now slides between 24, 48 and 72 hours. Valid outlooks show a decorative field scene, with a short rain animation when the selected window contains precipitation. Simulation and freshness labels appear next to the outlook. Reduced-motion users see still illustrations and an immediate selector change.
+
+Verified rainy, dry, expired and unavailable states, reduced motion, and the Bangla layout at 390 pixels. The build and 326 API tests, 91 web unit tests, and 49 of 50 Playwright tests passed. The existing marketplace gallery fixture remains the only browser failure.
+
+## Account and feature motion · 25 November 2026
+
+The sign-in headline slides into view one phrase at a time in English and Bangla. Reduced-motion settings show both phrases immediately. The desktop English and 375-pixel Bangla browser check, the production build, 91 web unit tests, and 14 authentication API tests passed.
+
+Sign-in and sign-up have a one-time farm photo reveal, a sliding mode indicator, a short form reveal and a pending indicator during submission. AgroDoctor's preview shows a scan effect while the assessment request runs. FloodCrop animates the loaded rainfall total and chart. KrishiMarket and AgroRescue reveal completed comparisons, and Farm tools reveal the selected panel. Visible data, labels and loading states remain available with reduced motion.
+
+The account background is an illustration generated with ImageGen and bundled as `apps/web/public/account-farm-morning.webp`.
+
+> Photorealistic editorial photograph for the left panel of a Bangladeshi agricultural web app's sign-in screen. Portrait 4:5 framing. A lush, smallholder vegetable farm in Bangladesh, with repeated crop rows in rich deep greens and low morning mist in the distance. A single Bangladeshi grower with a simple light shirt and woven field hat is checking the plants in the lower-right third, viewed from behind at a natural distance. Dim and unobtrusive upper-left and central-left areas so white interface text can sit above it. Soft warm light in upper-right, balanced, cinematic, credible agriculture, premium magazine photography, natural green palette, no text, typography, icons, marks or branding. Keep essential agricultural detail readable when cropped to a short landscape panel on mobile.
+
+Verified the desktop sign-in and Bangla sign-up at 375 pixels. A local screening exercised the pending scan effect, its static reduced-motion state and the completed result. The production build, 326 API tests, 91 web unit tests and 48 of 49 Playwright tests passed. The existing private marketplace gallery fixture remains the only browser failure.
+
+## Local MCP and farm-to-market animation · 25 November 2026
+
+The optional local MCP server provides read-only plot discovery, plot briefs, district price summaries and storage balances via stdio. It reuses the AgroSphere API for authentication and ownership. The client receives selected fields together with relevant source and freshness data. A real MCP session exercised all four tools, rejected cross-account and missing-token private reads, accepted Bangla district and crop names, and confirmed saved records were unchanged. A remote MCP endpoint requires its own deployment and authorization setup.
+
+The farmer dashboard shows a produce truck with potato or tomato crates when the selected plot matches. The truck moves once when the scene comes into view. The still scene is used with reduced motion. The bilingual card links to the existing KrishiMarket price page.
+
+The API suite passed 326 tests, the web unit suite passed 91 tests, and the production build passed. The full browser run passed 46 of 47 tests. The existing private marketplace gallery fixture remains the only failure. A focused rerun on the final build verified the truck animation, the Bangla phone layout and the reduced-motion setting.
+
 ## Farm tools and Bangla dictation · 25 November 2026
 
 The farmer workspace now includes a stage-based potato and tomato calendar, due reminders and evidence-based scouting and drainage alerts. The plot cash ledger records cash received and farming expenses in BDT. It also calculates the break-even price for a user-entered saleable weight. Storage batches retain harvest and storage dates, inspections, recorded losses and withdrawals. Balances use validated decimal quantities.

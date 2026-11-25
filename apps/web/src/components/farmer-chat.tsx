@@ -15,7 +15,7 @@ type Action = {kind: 'navigate' | 'call' | 'note' | 'handoff'; label: string; ta
 type Message = {
   id: string; role: 'user' | 'assistant'; text: string;
   sources?: {label: string; url?: string; detail?: string}[];
-  actions?: Action[]; mode?: 'groq' | 'tool' | 'limited';
+  actions?: Action[]; mode?: 'groq' | 'rag' | 'tool' | 'limited';
 };
 type Conversation = {conversation_id: string; messages: Message[]};
 type Index = {active: string | null; entries: {id: string; date: number}[]};
@@ -33,7 +33,7 @@ const labels = {
     noteFailed: 'The note couldn’t be saved.', expired: 'Your session has expired. Sign in again.',
     rated: 'The chat is busy. Please try again shortly.', tooLong: 'Keep your question to 1,600 characters.',
     conflict: 'Reopen this conversation from Previous chats to see the latest replies. If the conversation is full, start a new chat.',
-    you: 'You', groq: 'AI reply', tool: 'From farm tools', limited: 'Limited guidance',
+    you: 'You', groq: 'AI reply', rag: 'AI reply with sources', tool: 'From farm tools', limited: 'Limited guidance',
     sources: 'Sources', saved: 'Note saved', handoff: 'Handoff text', copy: 'Copy text', copied: 'Copied',
     manualCopy: 'Text selected. Use your device’s Copy command.', previous: 'Conversation', noHistory: 'Your conversations will appear here.',
     listLoading: 'Checking for previous chats…', listFailed: 'Couldn’t refresh previous chats.',
@@ -49,7 +49,7 @@ const labels = {
     noteFailed: 'নোট সংরক্ষণ করা যায়নি।', expired: 'সেশন শেষ হয়েছে। আবার সাইন ইন করুন।',
     rated: 'চ্যাট এখন ব্যস্ত। একটু পরে আবার চেষ্টা করুন।', tooLong: 'প্রশ্নটি ১,৬০০ অক্ষরের মধ্যে লিখুন।',
     conflict: 'সাম্প্রতিক উত্তর দেখতে আগের চ্যাট থেকে কথোপকথনটি আবার খুলুন। চ্যাট পূর্ণ হলে নতুন চ্যাট শুরু করুন।',
-    you: 'আপনি', groq: 'এআইয়ের উত্তর', tool: 'খামারের তথ্য থেকে', limited: 'সীমিত পরামর্শ',
+    you: 'আপনি', groq: 'এআইয়ের উত্তর', rag: 'সূত্রসহ এআইয়ের উত্তর', tool: 'খামারের তথ্য থেকে', limited: 'সীমিত পরামর্শ',
     sources: 'তথ্যসূত্র', saved: 'নোট সংরক্ষিত', handoff: 'কর্মকর্তার জন্য বার্তা', copy: 'লেখা কপি করুন', copied: 'কপি হয়েছে',
     manualCopy: 'লেখা নির্বাচন করা হয়েছে। ডিভাইসের কপি অপশন ব্যবহার করুন।', previous: 'কথোপকথন', noHistory: 'আপনার আগের চ্যাট এখানে দেখা যাবে।',
     listLoading: 'আগের চ্যাট খোঁজা হচ্ছে…', listFailed: 'আগের চ্যাটের তালিকা আনা যায়নি।',

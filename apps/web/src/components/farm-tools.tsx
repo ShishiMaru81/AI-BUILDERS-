@@ -170,11 +170,13 @@ export function FarmTools({locale, plot, userId, actions}: {locale:Locale; plot?
       {tabs.map(([id,en,bn])=><a aria-current={tab===id?'page':undefined} href={'#'+id} key={id}>{t(en,bn)}</a>)}
     </nav>
     {error&&<p className="error" role="alert">{error}</p>}
-    {tab==='calendar'&&<Calendar {...props}/>}
-    {tab==='ledger'&&<FarmLedger {...props}/>}
-    {tab==='storage'&&<StorageTracker {...props}/>}
-    {tab==='community'&&<CommunityReports {...props} plotId={plot.id}/>}
-    {tab==='offline'&&<OfflineNotebook {...props} actions={actions}/>}
+    <div key={tab} className="ui-plot-panel ui-reveal">
+      {tab==='calendar'&&<Calendar {...props}/>}
+      {tab==='ledger'&&<FarmLedger {...props}/>}
+      {tab==='storage'&&<StorageTracker {...props}/>}
+      {tab==='community'&&<CommunityReports {...props} plotId={plot.id}/>}
+      {tab==='offline'&&<OfflineNotebook {...props} actions={actions}/>}
+    </div>
   </div>;
 }
 

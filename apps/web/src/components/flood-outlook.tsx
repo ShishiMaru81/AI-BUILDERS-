@@ -1,14 +1,24 @@
 'use client';
 
-import {useState} from 'react';
+import {useState, type CSSProperties} from 'react';
 import {useQuery} from '@tanstack/react-query';
 import {ArrowUpRight, CheckCircle2, CloudRain, MapPin} from 'lucide-react';
 import {Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis} from 'recharts';
 import {formatTime, request} from '@/lib/api';
 import type {Farm, Plot, Weather} from '@/lib/types';
 import {FarmLocationEditor} from './location-picker';
+import styles from './flood-motion.module.css';
 
 type Mode = 'LIVE' | 'DEMO';
+
+function RainScene({hasRain}: {hasRain: boolean}) {
+  return <div className={styles.scene} aria-hidden="true" data-testid="rain-outlook-scene">
+    <span className={styles.hills}/>
+    <span className={styles.fields}/>
+    <span className={styles.cloud}/>
+    {hasRain&&<span className={styles.rain} data-testid="rain-outlook-streaks"/>}
+  </div>;
+}
 
 export function FloodOutlook({plot, farm, busy, perform, locale}: {
   plot: Plot; farm: Farm; busy: boolean; locale: 'en'|'bn';
@@ -30,13 +40,15 @@ export function FloodOutlook({plot, farm, busy, perform, locale}: {
   const windowStart=data?.valid_from??hourly?.[0]?.time;
   const lastSlot=hourly?.at(-1)?.time;
   const windowEnd=data?.horizon_valid_until??(lastSlot?new Date(new Date(lastSlot).getTime()+3600000).toISOString():undefined);
+  const forecastKey=`${mode}:${horizon}:${data?.meta.retrieved_at ?? ''}`;
   const clock=new Intl.DateTimeFormat(locale==='bn'?'bn-BD':'en-BD',{
     weekday:'short',hour:'2-digit',minute:'2-digit',timeZone:'Asia/Dhaka',
   });
   return <>
     <div className="row between filters">
-      <div className="segmented">{[24,48,72].map(h=>
-        <button key={h} className={horizon===h?'selected':''} aria-pressed={horizon===h} onClick={()=>setHorizon(h)}>
+      <div className={`segmented ${styles.windows}`} role="group" aria-label={t('Forecast window','পূর্বাভাসের সময়সীমা')}
+        style={{'--window':horizon/24-1} as CSSProperties}>{[24,48,72].map(h=>
+        <button key={h} type="button" aria-pressed={horizon===h} onClick={()=>setHorizon(h)}>
           {h} {t('hours','ঘণ্টা')}
         </button>)}</div>
       <label className="inline-label">{t('Source','উৎস')}
@@ -60,7 +72,7 @@ export function FloodOutlook({plot, farm, busy, perform, locale}: {
         </label>
       </section>
       <section className="panel rain-summary" aria-live="polite">
-        <span className="icon-box blue"><CloudRain size={27}/></span>
+        <span className="icon-box blue rain-icon" data-refreshing={forecast.isFetching} aria-hidden="true"><CloudRain size={27}/></span>
         <span className="eyebrow">{locale==='bn'?`${horizon} ঘণ্টার বৃষ্টির পূর্বাভাস`:`${horizon}-HOUR RAIN OUTLOOK`}</span>
         {forecast.isError&&<div className="error" role="alert">
           <p>{mode==='LIVE'?t('Live weather unavailable.','হালনাগাদ আবহাওয়া পাওয়া যাচ্ছে না।'):t('Sample outlook unavailable.','নমুনা পূর্বাভাস পাওয়া যাচ্ছে না।')}</p>
@@ -68,32 +80,33 @@ export function FloodOutlook({plot, farm, busy, perform, locale}: {
         </div>}
         {forecast.isFetching&&<p role="status">{t('Loading rainfall outlook…','বৃষ্টির পূর্বাভাস লোড হচ্ছে…')}</p>}
         {data&&<>
-          <div className="rain-total">{data.total_mm}<small>{t('mm','মিমি')}</small></div>
+          <div className="rain-total ui-reveal" key={forecastKey}>{data.total_mm}<small>{t('mm','মিমি')}</small></div>
           <span className="badge amber">{expired?t('Forecast expired','পূর্বাভাসের মেয়াদ শেষ'):
             data.level==='prepare'?t('Review rain preparations','বৃষ্টির প্রস্তুতি পর্যালোচনা করুন'):t('Monitor conditions','পরিস্থিতি পর্যবেক্ষণ করুন')}</span>
-          <h3>{t('Preparedness, explained.','প্রস্তুতির কারণ')}</h3>
-          <p>{t(`The preparation threshold for this plot is ${data.threshold_mm} mm over ${data.horizon_hours} hours. It is an illustrative rainfall rule.`,
-            `এই জমিতে ${data.horizon_hours} ঘণ্টায় ${data.threshold_mm} মিমি বৃষ্টির সীমা ধরে প্রস্তুতির পরামর্শ দেখানো হয়। এটি একটি উদাহরণভিত্তিক নিয়ম।`)}</p>
           <div className="source"><span className={`badge ${data.meta.is_simulated?'amber':'green'}`}>
             {data.meta.is_simulated?t('Simulated scenario','নমুনা পরিস্থিতি'):t('Live forecast','হালনাগাদ পূর্বাভাস')}</span>
             <span>{data.meta.source_name}</span>
             {data.meta.freshness==='stale'&&<span className="badge amber">{t('Older forecast','পুরোনো পূর্বাভাস')}</span>}
           </div>
+          {!expired&&<RainScene key={forecastKey} hasRain={data.total_mm>0}/>}
           {windowStart&&windowEnd&&<p>{formatTime(windowStart,locale)} – {formatTime(windowEnd,locale)}</p>}
           {data.meta.retrieved_at&&<small className="helper">{t('Retrieved','তথ্য সংগ্রহ')} {formatTime(data.meta.retrieved_at,locale)}</small>}
+          <h3>{t('Preparedness, explained.','প্রস্তুতির কারণ')}</h3>
+          <p>{t(`The preparation threshold for this plot is ${data.threshold_mm} mm over ${data.horizon_hours} hours. It is an illustrative rainfall rule.`,
+            `এই জমিতে ${data.horizon_hours} ঘণ্টায় ${data.threshold_mm} মিমি বৃষ্টির সীমা ধরে প্রস্তুতির পরামর্শ দেখানো হয়। এটি একটি উদাহরণভিত্তিক নিয়ম।`)}</p>
         </>}
         <button type="button" className="btn secondary" disabled={forecast.isFetching} onClick={()=>void forecast.refetch()}>
           {forecast.isError?t('Retry forecast','আবার চেষ্টা করুন'):t('Refresh outlook','পূর্বাভাস হালনাগাদ করুন')}
         </button>
       </section>
     </div>
-    {hourly&&hourly.length>0&&<section className="panel">
+    {hourly&&hourly.length>0&&<section className="panel rain-result-chart" key={forecastKey}>
       <div className="section-heading"><h2>{t('Hourly precipitation','ঘণ্টাভিত্তিক বৃষ্টিপাত')}</h2></div>
       <div className="chart"><ResponsiveContainer width="100%" height="100%"><AreaChart data={hourly}>
         <CartesianGrid vertical={false} stroke="var(--line)"/><XAxis dataKey="time" minTickGap={48} axisLine={false} tickLine={false} tickFormatter={value=>clock.format(new Date(value))}/>
         <YAxis unit=" mm" width={55} axisLine={false} tickLine={false}/>
         <Tooltip labelFormatter={value=>formatTime(String(value),locale)}/>
-        <Area type="linear" dataKey="rain_mm" name={t('Rainfall','বৃষ্টিপাত')} unit=" mm" stroke="#168b5d" fill="#168b5d" fillOpacity={0.22}/>
+        <Area type="linear" dataKey="rain_mm" name={t('Rainfall','বৃষ্টিপাত')} unit=" mm" stroke="#168b5d" fill="#168b5d" fillOpacity={0.22} isAnimationActive={false}/>
       </AreaChart></ResponsiveContainer></div>
     </section>}
     <div className="two-grid">

@@ -6,8 +6,9 @@ const answer = {
   conversation_id: 'field-chat',
   messages: [
     {id: 'q1', role: 'user', text: question},
-    {id: 'a1', role: 'assistant', mode: 'tool', text: 'Check the water level at the field edge.',
-      sources: [{label: 'Field observation', detail: 'Farmer-entered record'}],
+    {id: 'a1', role: 'assistant', mode: 'rag', text: 'Check the water level at the field edge.',
+      sources: [{label: 'Field observation', detail: 'Farmer-entered record'},
+        {label: 'BAMIS field drainage', detail: 'Check low areas for standing water.', url: 'https://www.bamis.gov.bd/bn/bulletin/view/46022/'}],
       actions: [
         {kind: 'note', label: 'Save as a note', target: 'case-note'},
         {kind: 'navigate', label: 'Open AgroDoctor', target: '/agrodoctor'},
@@ -71,6 +72,8 @@ test('retry keeps the question, sources and explicit actions survive reload, and
   await expect(input).toHaveValue(question);
   await chat.getByRole('button', {name: 'Retry'}).click();
   await expect(chat).toContainText('Farmer-entered record');
+  await expect(chat.getByText('AI reply with sources')).toBeVisible();
+  await expect(chat.getByRole('link', {name: 'BAMIS field drainage'})).toHaveAttribute('href', 'https://www.bamis.gov.bd/bn/bulletin/view/46022/');
   expect(attempts[0]).toBeTruthy();
   expect(attempts[0]).toBe(attempts[1]);
   await expect(chat.getByRole('link', {name: 'Open AgroDoctor'})).toHaveAttribute('href', '/en/agrodoctor');

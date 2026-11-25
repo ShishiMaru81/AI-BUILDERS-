@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import {useRef, useState, type FormEvent} from 'react';
 import {useQuery} from '@tanstack/react-query';
-import {ArrowRight, Leaf, ShieldCheck} from 'lucide-react';
+import {ArrowRight, Leaf, LoaderCircle, ShieldCheck} from 'lucide-react';
 import {request, setSessionToken} from '@/lib/api';
 
 type Locale = 'en' | 'bn';
@@ -98,15 +98,21 @@ export function AccountAccess({locale, marketplace = false}: {locale: Locale; ma
 
   return <main className="account-access">
     <section className="account-brand">
-      <div className="account-mark"><Leaf size={24}/> AgroSphere AI</div>
-      <h1>{t('From farm to market', 'খামার থেকে বাজারে')}</h1>
-      <p>{t('Screen crop leaves, sell your harvest, or buy directly from growers.', 'ফসলের পাতা পরীক্ষা করুন, ফসল বিক্রি করুন অথবা কৃষকের কাছ থেকে কিনুন।')}</p>
-      <Link className="account-language" href={`/${locale === 'en' ? 'bn' : 'en'}${marketplace ? '/marketplace/auth' : ''}`}>
-        {locale === 'en' ? 'বাংলা' : 'English'}
-      </Link>
+      <div className="account-farm-art" aria-hidden="true"/>
+      <div className="account-brand-copy">
+        <div className="account-mark"><Leaf size={24}/> AgroSphere AI</div>
+        <h1>
+          <span className="account-headline-line"><span>{t('From farm', 'খামার থেকে')}</span></span>{' '}
+          <span className="account-headline-line"><span>{t('to market', 'বাজারে')}</span></span>
+        </h1>
+        <p>{t('Screen crop leaves, sell your harvest, or buy directly from growers.', 'ফসলের পাতা পরীক্ষা করুন, ফসল বিক্রি করুন অথবা কৃষকের কাছ থেকে কিনুন।')}</p>
+        <Link className="account-language" href={`/${locale === 'en' ? 'bn' : 'en'}${marketplace ? '/marketplace/auth' : ''}`}>
+          {locale === 'en' ? 'বাংলা' : 'English'}
+        </Link>
+      </div>
     </section>
     <section className="account-form" aria-labelledby="account-title">
-      <div className="account-mode" aria-label={t('Account options', 'অ্যাকাউন্টের বিকল্প')}>
+      <div className="account-mode" data-purpose={purpose} role="group" aria-label={t('Account options', 'অ্যাকাউন্টের বিকল্প')}>
         {(['login', 'signup'] as const).map(mode => <button key={mode} type="button"
           aria-pressed={purpose === mode} disabled={busy} onClick={() => {
             setPurpose(mode);
@@ -115,8 +121,8 @@ export function AccountAccess({locale, marketplace = false}: {locale: Locale; ma
           {mode === 'login' ? t('Sign in', 'প্রবেশ করুন') : t('Sign up', 'অ্যাকাউন্ট খুলুন')}
         </button>)}
       </div>
-      <h2 id="account-title">{purpose === 'signup' ? t('Create your account', 'অ্যাকাউন্ট তৈরি করুন') : t('Sign in to AgroSphere', 'অ্যাগ্রোস্ফিয়ারে প্রবেশ করুন')}</h2>
-      <form onSubmit={submit} className="account-fields">
+      <h2 id="account-title" className="ui-reveal" key={purpose}>{purpose === 'signup' ? t('Create your account', 'অ্যাকাউন্ট তৈরি করুন') : t('Sign in to AgroSphere', 'অ্যাগ্রোস্ফিয়ারে প্রবেশ করুন')}</h2>
+      <form onSubmit={submit} className="account-fields" aria-busy={busy}>
         {purpose === 'signup' && <>
           <label>{t('Full name', 'পুরো নাম')}<input autoComplete="name" value={name} onChange={e => setName(e.target.value)} maxLength={120} required disabled={busy}/></label>
           <label>{t('Age in years', 'বয়স (বছর)')}<input type="number" min={1} max={120} step={1} value={age} onChange={e => setAge(e.target.value)} required disabled={busy}/></label>
@@ -124,7 +130,7 @@ export function AccountAccess({locale, marketplace = false}: {locale: Locale; ma
             <option value="customer">{t('Customer · Buy produce', 'ক্রেতা · পণ্য কিনুন')}</option>
             <option value="farmer">{t('Farmer · Sell produce and use AgroDoctor', 'কৃষক · পণ্য বিক্রি ও অ্যাগ্রোডক্টর ব্যবহার করুন')}</option>
           </select></label>
-          <fieldset className="account-identity" disabled={busy}>
+          <fieldset className="account-identity ui-reveal" disabled={busy}>
             <legend>{t('Private signup details', 'নিবন্ধনের ব্যক্তিগত তথ্য')}</legend>
             <label>{t('Bangladesh national ID number', 'বাংলাদেশের জাতীয় পরিচয়পত্র নম্বর')}
               <input name="national_id" inputMode="numeric" autoComplete="off"
@@ -172,7 +178,8 @@ export function AccountAccess({locale, marketplace = false}: {locale: Locale; ma
           <input name="password" type="password" autoComplete="current-password" required disabled={busy}/>
         </label>}
         <button className="btn primary" disabled={busy}>
-          {purpose === 'signup' ? t('Create account', 'অ্যাকাউন্ট তৈরি করুন') : t('Sign in', 'প্রবেশ করুন')}<ArrowRight size={16}/>
+          {purpose === 'signup' ? t('Create account', 'অ্যাকাউন্ট তৈরি করুন') : t('Sign in', 'প্রবেশ করুন')}
+          {busy ? <LoaderCircle size={16} className="account-spinner" aria-hidden="true"/> : <ArrowRight size={16} aria-hidden="true"/>}
         </button>
       </form>
       {error && <p className="error" role="alert">{error}</p>}
