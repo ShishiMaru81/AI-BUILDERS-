@@ -8,6 +8,8 @@ Connect a local MCP client to the [AgroSphere read-only tools](docs/agrosphere-m
 
 For a public website, see [Netlify + free backend deployment](docs/netlify-deployment.md). The root `netlify.toml` configures the frontend and `render.yaml` prepares the separate free Python/PostgreSQL demo backend. Cloud deployment requires account authorization and the real HTTPS backend URL; localhost Docker URLs cannot serve Netlify visitors.
 
+On Vercel, import the repository with `apps/web` as the Root Directory and the Next.js preset. Set `NEXT_PUBLIC_DEPLOYMENT_TIER=frontend_preview` to publish the website preview before the API is available. For an API-backed deployment, remove that setting, set `NEXT_PUBLIC_API_URL` to the public HTTPS API URL ending in `/api/v1`, add the Vercel origin to the API's `CORS_ORIGINS`, and redeploy.
+
 ## KrishiMarket marketplace
 
 Direct fixed-price shopping with optional MOQ, optional auction lots, nearby-first 20 km discovery and nationwide eligible fulfillment is implemented in the existing app. Farmer/customer signup and operator-provisioned admin roles are enforced server-side. Checkout is a clearly labelled prototype with unpaid cash-on-delivery/pickup records; no online payments are processed.

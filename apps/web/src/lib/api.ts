@@ -1,4 +1,5 @@
-export const API = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api/v1';
+export const FRONTEND_PREVIEW = process.env.NEXT_PUBLIC_DEPLOYMENT_TIER === 'frontend_preview';
+export const API = process.env.NEXT_PUBLIC_API_URL || (FRONTEND_PREVIEW ? '/api/v1' : 'http://127.0.0.1:8000/api/v1');
 export const TOKEN_KEY = 'agrosphere-token';
 
 export class ApiError extends Error {
@@ -38,6 +39,7 @@ export function clearSessionToken() {
 }
 
 export async function request<T = unknown>(path: string, options: RequestInit = {}): Promise<T> {
+  if (FRONTEND_PREVIEW) throw new ApiError('The AgroSphere API is unavailable in this preview.', 503);
   const headers = new Headers(options.headers);
   const token = getSessionToken();
   if (token) headers.set('Authorization', `Bearer ${token}`);
@@ -63,6 +65,7 @@ export async function request<T = unknown>(path: string, options: RequestInit = 
 }
 
 export async function download(path: string, name: string) {
+  if (FRONTEND_PREVIEW) throw new ApiError('The AgroSphere API is unavailable in this preview.', 503);
   const response = await fetch(API + path, {
     headers: {Authorization: `Bearer ${getSessionToken()}`},
   });
