@@ -4,6 +4,8 @@ The hosted demo configuration requires PostgreSQL and creates private sample far
 
 The hosted account gate passed 43 API regression checks and 91 web unit tests. The hosted-mode Next.js production build completed successfully.
 
+The workspace header exposes Sign out beside Notifications on desktop and mobile. Browser regression checks cover the English desktop and Bangla mobile layouts, session clearing, and the return to account access.
+
 ## Farmer Chat searches published guidance · 25 November 2026
 
 Farmer Chat searches 12 bilingual guidance passages for crop scouting, storage, field drainage, soil moisture and regional crop calendars. It filters by crop, district or stage where applicable and can use a local multilingual E5 encoder to rerank matches. Groq receives the relevant passages alongside the existing farm evidence. Answers link to the passages cited by the model. If the answer is unavailable or fails citation checks, the chat can show the relevant published passage directly.
