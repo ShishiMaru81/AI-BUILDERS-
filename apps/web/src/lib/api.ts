@@ -1,4 +1,5 @@
 export const FRONTEND_PREVIEW = process.env.NEXT_PUBLIC_DEPLOYMENT_TIER === 'frontend_preview';
+export const VERCEL_DEMO = process.env.NEXT_PUBLIC_DEPLOYMENT_TIER === 'vercel_demo';
 export const API = process.env.NEXT_PUBLIC_API_URL || (FRONTEND_PREVIEW ? '/api/v1' : 'http://127.0.0.1:8000/api/v1');
 export const TOKEN_KEY = 'agrosphere-token';
 

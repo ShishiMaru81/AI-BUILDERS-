@@ -4,7 +4,7 @@ import Link from 'next/link';
 import {useRef, useState, type FormEvent} from 'react';
 import {useQuery} from '@tanstack/react-query';
 import {ArrowRight, Leaf, LoaderCircle, ShieldCheck} from 'lucide-react';
-import {FRONTEND_PREVIEW, request, setSessionToken} from '@/lib/api';
+import {FRONTEND_PREVIEW, VERCEL_DEMO, request, setSessionToken} from '@/lib/api';
 
 type Locale = 'en' | 'bn';
 type Role = 'farmer' | 'customer' | 'admin';
@@ -34,9 +34,11 @@ export function AccountAccess({locale, marketplace = false}: {locale: Locale; ma
   const options = useQuery({
     queryKey: ['auth-options'],
     queryFn: () => request<{demo: boolean}>('/auth/options'),
-    enabled: !marketplace && !FRONTEND_PREVIEW,
+    enabled: (!marketplace || VERCEL_DEMO) && !FRONTEND_PREVIEW,
   });
+  const showAccountForm = !FRONTEND_PREVIEW && !VERCEL_DEMO;
   const title = FRONTEND_PREVIEW ? t('Website preview', 'ওয়েবসাইটের প্রিভিউ')
+    : VERCEL_DEMO ? t('Explore AgroSphere', 'অ্যাগ্রোস্ফিয়ার ঘুরে দেখুন')
     : purpose === 'signup' ? t('Create your account', 'অ্যাকাউন্ট তৈরি করুন') : t('Sign in to AgroSphere', 'অ্যাগ্রোস্ফিয়ারে প্রবেশ করুন');
   const contact = channel === 'phone' ? phone : email;
   const mobileFormat = t('Include +880. Enter exactly 14 characters, including +, as in +8801712345678.',
@@ -114,7 +116,7 @@ export function AccountAccess({locale, marketplace = false}: {locale: Locale; ma
       </div>
     </section>
     <section className="account-form" aria-labelledby="account-title">
-      {!FRONTEND_PREVIEW && <div className="account-mode" data-purpose={purpose} role="group" aria-label={t('Account options', 'অ্যাকাউন্টের বিকল্প')}>
+      {showAccountForm && <div className="account-mode" data-purpose={purpose} role="group" aria-label={t('Account options', 'অ্যাকাউন্টের বিকল্প')}>
         {(['login', 'signup'] as const).map(mode => <button key={mode} type="button"
           aria-pressed={purpose === mode} disabled={busy} onClick={() => {
             setPurpose(mode);
@@ -126,7 +128,10 @@ export function AccountAccess({locale, marketplace = false}: {locale: Locale; ma
       <h2 id="account-title" className="ui-reveal" key={purpose}>{title}</h2>
       {FRONTEND_PREVIEW && <p>{t('Sign-in, account creation, and farm tools will be available when the AgroSphere API is connected.',
         'অ্যাগ্রোস্ফিয়ার এপিআই সংযুক্ত হলে সাইন ইন, অ্যাকাউন্ট তৈরি ও খামারের টুল ব্যবহার করা যাবে।')}</p>}
-      {!FRONTEND_PREVIEW && <form onSubmit={submit} className="account-fields" aria-busy={busy}>
+      {VERCEL_DEMO && <p>{t('Start a private demo workspace with a sample farm. Use sample data. Uploaded photos may reset.',
+        'নমুনা খামার নিয়ে একটি ব্যক্তিগত ডেমো শুরু করুন। নমুনা তথ্য ব্যবহার করুন। আপলোড করা ছবি মুছে যেতে পারে।')}</p>}
+      {VERCEL_DEMO && options.isError && <p className="error" role="alert">{t('The demo service is temporarily unavailable.', 'ডেমো সেবাটি সাময়িকভাবে পাওয়া যাচ্ছে না।')}</p>}
+      {showAccountForm && <form onSubmit={submit} className="account-fields" aria-busy={busy}>
         {purpose === 'signup' && <>
           <label>{t('Full name', 'পুরো নাম')}<input autoComplete="name" value={name} onChange={e => setName(e.target.value)} maxLength={120} required disabled={busy}/></label>
           <label>{t('Age in years', 'বয়স (বছর)')}<input type="number" min={1} max={120} step={1} value={age} onChange={e => setAge(e.target.value)} required disabled={busy}/></label>
@@ -187,7 +192,7 @@ export function AccountAccess({locale, marketplace = false}: {locale: Locale; ma
         </button>
       </form>}
       {error && <p className="error" role="alert">{error}</p>}
-      {options.data?.demo && !marketplace && <button type="button" className="btn secondary" disabled={busy}
+      {(VERCEL_DEMO || (options.data?.demo && !marketplace)) && <button type="button" className={VERCEL_DEMO ? 'btn primary' : 'btn secondary'} disabled={busy || !options.data?.demo}
         onClick={() => void run(async () => {
           const {token} = await request<{token: string}>('/auth/demo', {
             method: 'POST', body: JSON.stringify({name: t('Demo farmer', 'ডেমো কৃষক')}),

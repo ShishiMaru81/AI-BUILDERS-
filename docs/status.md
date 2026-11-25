@@ -1,3 +1,7 @@
+## Public demo on Vercel · 25 November 2026
+
+The hosted demo configuration requires PostgreSQL and creates private sample farms without password, registration, or verification-code requests. Delivery uses a standalone FastAPI project and the existing Next.js project. Uploaded images are temporary on the function runtime. The API regression suite passed 47 checks, the web suite passed 91, and the demo production build passed. Local desktop and mobile browser checks verified English and Bangla demo entry screens using a synthetic API response.
+
 ## Farmer Chat searches published guidance · 25 November 2026
 
 Farmer Chat searches 12 bilingual guidance passages for crop scouting, storage, field drainage, soil moisture and regional crop calendars. It filters by crop, district or stage where applicable and can use a local multilingual E5 encoder to rerank matches. Groq receives the relevant passages alongside the existing farm evidence. Answers link to the passages cited by the model. If the answer is unavailable or fails citation checks, the chat can show the relevant published passage directly.

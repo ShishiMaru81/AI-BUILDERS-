@@ -12,6 +12,7 @@ from contextlib import asynccontextmanager
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
+from tempfile import gettempdir
 from threading import Lock
 from time import monotonic
 from typing import Annotated, Any, Literal
@@ -29,6 +30,7 @@ from sqlalchemy import delete, func, select, text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session as DBSession
 
+from . import public_demo_enabled
 from .identity import require_user, user_view
 from .market_privacy import owner_export as market_owner_export, erase_account as erase_market_account
 from .market_auth import router as auth_router, AuthLimiter
@@ -85,7 +87,8 @@ from .services import (
     provenance,
 )
 
-storage = Path(os.getenv('IMAGE_STORAGE_PATH', 'storage'))
+storage_default = Path(gettempdir()) / 'agrosphere-demo' if public_demo_enabled() else Path('storage')
+storage = Path(os.getenv('IMAGE_STORAGE_PATH', str(storage_default)))
 storage.mkdir(parents=True, exist_ok=True)
 Image.MAX_IMAGE_PIXELS = 20_000_000
 APP_VERSION = '1.0.0'
@@ -93,10 +96,17 @@ APP_VERSION = '1.0.0'
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    ensure_compat_schema(engine)
+    if public_demo_enabled():
+        # Concurrent cold starts share the schema but use separate application processes.
+        with engine.begin() as connection:
+            connection.execute(text('SELECT pg_advisory_xact_lock(659853250)'))
+            ensure_compat_schema(engine)
+    else:
+        ensure_compat_schema(engine)
     app.state.instance_id = uuid4().hex
     app.state.market_auth_limiter = AuthLimiter()
     app.state.farmer_chat_limiter = AuthLimiter(ip_limit=60, identity_limit=14, by_destination=True)
+    app.state.demo_login_limiter = AuthLimiter(window=3600, ip_limit=30, identity_limit=30)
     yield
 
 
@@ -113,7 +123,12 @@ app.add_middleware(
 @app.middleware('http')
 async def request_headers(request: Request, call_next):
     request.state.request_id = uuid4().hex
-    response = await call_next(request)
+    path = request.url.path.rstrip('/')
+    if (public_demo_enabled() and request.method == 'POST' and path.startswith('/api/v1/auth/')
+            and path not in {'/api/v1/auth/demo', '/api/v1/auth/logout'}):
+        response = JSONResponse({'message': 'Only demo sign-in is available on this deployment.'}, status_code=403)
+    else:
+        response = await call_next(request)
     response.headers.update({
         'X-Request-ID': request.state.request_id,
         'X-Content-Type-Options': 'nosniff',
@@ -496,9 +511,11 @@ app.openapi = custom_openapi
 # ── Auth & health ────────────────────────────────────────────────────────────
 
 @app.post('/api/v1/auth/demo')
-def login(body: DemoLogin, db: Db):
+def login(body: DemoLogin, db: Db, request: Request):
     if not demo_login_enabled():
         raise HTTPException(404, 'Demo sign-in is disabled')
+    if public_demo_enabled():
+        request.app.state.demo_login_limiter.check(request.client.host if request.client else 'unknown', 'demo')
     user = User(
         name=body.name,
         is_demo=True,
@@ -583,7 +600,7 @@ def ready(request: Request, db: Db):
         db.execute(text('SELECT 1'))
     except Exception as exc:  # noqa: BLE001 — readiness must never 500
         db_state = 'error'
-        detail = f'database: {exc}'
+        detail = 'Database connection failed.' if public_demo_enabled() else f'database: {exc}'
     try:
         probe = storage / f'.ready-{uuid4().hex}'
         probe.write_text('ok', encoding='utf-8')

@@ -18,6 +18,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from . import public_demo_enabled
 from .db import SignupIdentity, User, fixture_contact, get_db
 from .email_otp import smtp_ready, start_email, consume_email
 from .market_auth import AuthLimiter, _DUMMY_HASH, hash_password, issue_session, limit_auth, normalize_email, verify_password
@@ -29,7 +30,8 @@ BANGLA_DIGITS = str.maketrans('০১২৩৪৫৬৭৮৯', '0123456789')
 
 
 def demo_login_enabled() -> bool:
-    return os.getenv('ENABLE_DEMO_LOGIN', '0' if os.getenv('HOSTING_TIER') else '1') == '1'
+    default = '1' if public_demo_enabled() or not os.getenv('HOSTING_TIER') else '0'
+    return os.getenv('ENABLE_DEMO_LOGIN', default) == '1'
 
 
 class Contact(BaseModel):
@@ -245,6 +247,9 @@ def password_login(body: ContactPassword, request: Request, response: Response, 
 
 @router.get('/options')
 def auth_options():
+    if public_demo_enabled():
+        return {'demo': demo_login_enabled(), 'otp': False, 'signup': False,
+                'channels': {'email': False, 'sms': False}, 'default_channel': 'phone'}
     channels = available_channels()
     otp = any(channels.values())
     try:

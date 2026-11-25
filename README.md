@@ -10,6 +10,8 @@ For a public website, see [Netlify + free backend deployment](docs/netlify-deplo
 
 On Vercel, import the repository with `apps/web` as the Root Directory and the Next.js preset. Set `NEXT_PUBLIC_DEPLOYMENT_TIER=frontend_preview` to publish the website preview before the API is available. For an API-backed deployment, remove that setting, set `NEXT_PUBLIC_API_URL` to the public HTTPS API URL ending in `/api/v1`, add the Vercel origin to the API's `CORS_ORIGINS`, and redeploy.
 
+For the public demo, import `apps/api` as a separate FastAPI project. Set `HOSTING_TIER=vercel_demo`, `DATA_MODE=DEMO`, and `CORS_ORIGINS` to the frontend's exact HTTPS origin. Connect a separate Postgres database to the API project using `DATABASE_URL` or `POSTGRES_URL`. After verifying `/api/v1/health` and `/api/v1/auth/options`, set the frontend's `NEXT_PUBLIC_DEPLOYMENT_TIER=vercel_demo` and `NEXT_PUBLIC_API_URL`, then redeploy the frontend. This mode creates isolated sample farms without identity verification. Uploaded photos use temporary storage. The default cloud build excludes local PyTorch models, so hosted vision and generated chat answers require a privately configured Groq service. Reviewed chat guidance remains available without Groq.
+
 ## KrishiMarket marketplace
 
 Direct fixed-price shopping with optional MOQ, optional auction lots, nearby-first 20 km discovery and nationwide eligible fulfillment is implemented in the existing app. Farmer/customer signup and operator-provisioned admin roles are enforced server-side. Checkout is a clearly labelled prototype with unpaid cash-on-delivery/pickup records; no online payments are processed.

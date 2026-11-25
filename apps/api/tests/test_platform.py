@@ -26,6 +26,19 @@ def test_private_sessions_and_farms(client,session):
     other=client.post('/api/v1/auth/demo',json={'name':'Other'}).json()
     assert client.get('/api/v1/plots/'+plot['id'],headers={'Authorization':'Bearer '+other['token']}).status_code==404
     assert client.post('/api/v1/farms',json={'name':'Farm','district':'Dhaka','latitude':23,'longitude':90}).status_code==422
+
+def test_hosted_demo_allows_sample_farms_without_account_registration(client, monkeypatch):
+    monkeypatch.setenv('HOSTING_TIER', 'vercel_demo')
+    monkeypatch.delenv('ENABLE_DEMO_LOGIN', raising=False)
+    options = client.get('/api/v1/auth/options').json()
+    assert options['demo'] and not options['signup'] and not options['otp']
+    for route in ('register', 'signup', 'login', 'password', 'otp/start', 'otp/verify'):
+        assert client.post('/api/v1/auth/' + route, json={}).status_code == 403
+    demo = client.post('/api/v1/auth/demo', json={})
+    assert demo.status_code == 200
+    headers = {'Authorization': 'Bearer ' + demo.json()['token']}
+    assert client.get('/api/v1/farms', headers=headers).json()[0]['name'] == 'Gazipur Demo Farm'
+    assert client.get('/api/v1/farms').status_code == 401
 def test_upload_history_feedback_export_delete(client,session):
     r=client.post('/api/v1/doctor/cases',data={'plot_id':session['plot_id']},files={'image':('leaf.jpg',picture(),'image/jpeg')})
     assert r.status_code==200,r.text

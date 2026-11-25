@@ -1,5 +1,6 @@
 
 """Load private local settings before API, migrations, or worker imports."""
+import os
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -10,3 +11,7 @@ _env_dir = (_api_dir.parent.parent
             else _api_dir)
 # Hosted service environment variables always take precedence over local files.
 load_dotenv(_env_dir / '.env', override=False)
+
+
+def public_demo_enabled() -> bool:
+    return os.getenv('HOSTING_TIER') == 'vercel_demo'

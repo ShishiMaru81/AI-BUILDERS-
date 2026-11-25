@@ -4,6 +4,8 @@ from uuid import uuid4
 from sqlalchemy import JSON, Boolean, ForeignKey, Integer, LargeBinary, String, UniqueConstraint, create_engine, inspect, text, event
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker
 
+from . import public_demo_enabled
+
 
 def uid() -> str:
     return uuid4().hex
@@ -172,7 +174,12 @@ def ensure_compat_schema(target_engine) -> None:
                     conn.execute(text(f'ALTER TABLE sensor_readings ADD COLUMN {col_name} {col_type}'))
 
 
-url = os.getenv('DATABASE_URL', 'sqlite:///./agrosphere.db')
+if public_demo_enabled():
+    url = os.getenv('DATABASE_URL') or os.getenv('POSTGRES_URL', '')
+    if not url.startswith(('postgres://', 'postgresql://', 'postgresql+psycopg://')):
+        raise RuntimeError('The hosted demo requires a PostgreSQL connection.')
+else:
+    url = os.getenv('DATABASE_URL', 'sqlite:///./agrosphere.db')
 if url.startswith('postgres://'):
     url = 'postgresql+psycopg://' + url[len('postgres://'):]
 elif url.startswith('postgresql://'):
@@ -181,6 +188,7 @@ elif url.startswith('postgresql://'):
 engine = create_engine(
     url,
     connect_args={'check_same_thread': False} if url.startswith('sqlite') else {},
+    **({'pool_pre_ping': True, 'pool_size': 2, 'max_overflow': 3} if public_demo_enabled() else {}),
 )
 if url.startswith('sqlite'):
     @event.listens_for(engine, 'connect')
