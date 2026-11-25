@@ -12,6 +12,8 @@ On Vercel, import the repository with `apps/web` as the Root Directory and the N
 
 For the public demo, import `apps/api` as a separate FastAPI project. Set `HOSTING_TIER=vercel_demo`, `DATA_MODE=DEMO`, and `CORS_ORIGINS` to the frontend's exact HTTPS origin. Connect a separate Postgres database to the API project using `DATABASE_URL` or `POSTGRES_URL`. After verifying `/api/v1/health` and `/api/v1/auth/options`, set the frontend's `NEXT_PUBLIC_DEPLOYMENT_TIER=vercel_demo` and `NEXT_PUBLIC_API_URL`, then redeploy the frontend. This mode creates isolated sample farms without identity verification. Uploaded photos use temporary storage. The default cloud build excludes local PyTorch models, so hosted vision and generated chat answers require a privately configured Groq service. Reviewed chat guidance remains available without Groq.
 
+To offer password sign-up and sign-in alongside demo access, set `ENABLE_HOSTED_ACCOUNTS=1` and store a stable Fernet `SIGNUP_DATA_KEY` as a private environment variable on the production API project. Redeploy the API and confirm that `/api/v1/auth/options` reports `signup: true`. Account details and signup photos are encrypted in PostgreSQL. Email and SMS verification codes remain disabled in this hosting mode.
+
 ## KrishiMarket marketplace
 
 Direct fixed-price shopping with optional MOQ, optional auction lots, nearby-first 20 km discovery and nationwide eligible fulfillment is implemented in the existing app. Farmer/customer signup and operator-provisioned admin roles are enforced server-side. Checkout is a clearly labelled prototype with unpaid cash-on-delivery/pickup records; no online payments are processed.

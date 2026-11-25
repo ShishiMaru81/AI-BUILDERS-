@@ -33,7 +33,7 @@ from . import image_storage_root, public_demo_enabled
 from .identity import require_user, user_view
 from .market_privacy import owner_export as market_owner_export, erase_account as erase_market_account
 from .market_auth import router as auth_router, AuthLimiter
-from .otp_auth import router as otp_router, demo_login_enabled, open_identity
+from .otp_auth import router as otp_router, demo_login_enabled, hosted_password_accounts_enabled, open_identity
 from .rescue import router as rescue_router
 from .farm_tools import RECORD_KINDS as FARM_TOOL_RECORDS, router as farm_tools_router
 from . import market_models, market_service
@@ -123,8 +123,9 @@ async def request_headers(request: Request, call_next):
     request.state.request_id = uuid4().hex
     path = request.url.path.rstrip('/')
     if (public_demo_enabled() and request.method == 'POST' and path.startswith('/api/v1/auth/')
-            and path not in {'/api/v1/auth/demo', '/api/v1/auth/logout'}):
-        response = JSONResponse({'message': 'Only demo sign-in is available on this deployment.'}, status_code=403)
+            and path not in {'/api/v1/auth/demo', '/api/v1/auth/logout'}
+            and not (path in {'/api/v1/auth/signup', '/api/v1/auth/password'} and hosted_password_accounts_enabled())):
+        response = JSONResponse({'message': 'This account action is unavailable on this deployment.'}, status_code=403)
     else:
         response = await call_next(request)
     response.headers.update({

@@ -1,6 +1,8 @@
 ## Public demo on Vercel · 25 November 2026
 
-The hosted demo configuration requires PostgreSQL and creates private sample farms without password, registration, or verification-code requests. Delivery uses a standalone FastAPI project and the existing Next.js project. Uploaded images are temporary on the function runtime. The API regression suite passed 47 checks, the web suite passed 91, and the demo production build passed. Local desktop and mobile browser checks verified English and Bangla demo entry screens using a synthetic API response.
+The hosted demo configuration requires PostgreSQL and creates private sample farms. Production can enable password registration and sign-in alongside the sample farm flow with a private account encryption key. Email and SMS contacts remain unverified. Account identity details and signup photos are encrypted in PostgreSQL. Other uploaded images use temporary storage on the function runtime. Delivery uses a standalone FastAPI project and the existing Next.js project.
+
+The hosted account gate passed 43 API regression checks and 91 web unit tests. The hosted-mode Next.js production build completed successfully.
 
 ## Farmer Chat searches published guidance · 25 November 2026
 

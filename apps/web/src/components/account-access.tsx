@@ -33,12 +33,12 @@ export function AccountAccess({locale, marketplace = false}: {locale: Locale; ma
   const pending = useRef(false);
   const options = useQuery({
     queryKey: ['auth-options'],
-    queryFn: () => request<{demo: boolean}>('/auth/options'),
+    queryFn: () => request<{demo: boolean; signup: boolean}>('/auth/options'),
     enabled: (!marketplace || VERCEL_DEMO) && !FRONTEND_PREVIEW,
   });
-  const showAccountForm = !FRONTEND_PREVIEW && !VERCEL_DEMO;
+  const showAccountForm = !FRONTEND_PREVIEW && (!VERCEL_DEMO || options.data?.signup === true);
   const title = FRONTEND_PREVIEW ? t('Website preview', 'ওয়েবসাইটের প্রিভিউ')
-    : VERCEL_DEMO ? t('Explore AgroSphere', 'অ্যাগ্রোস্ফিয়ার ঘুরে দেখুন')
+    : !showAccountForm ? t('Explore AgroSphere', 'অ্যাগ্রোস্ফিয়ার ঘুরে দেখুন')
     : purpose === 'signup' ? t('Create your account', 'অ্যাকাউন্ট তৈরি করুন') : t('Sign in to AgroSphere', 'অ্যাগ্রোস্ফিয়ারে প্রবেশ করুন');
   const contact = channel === 'phone' ? phone : email;
   const mobileFormat = t('Include +880. Enter exactly 14 characters, including +, as in +8801712345678.',
@@ -128,7 +128,7 @@ export function AccountAccess({locale, marketplace = false}: {locale: Locale; ma
       <h2 id="account-title" className="ui-reveal" key={purpose}>{title}</h2>
       {FRONTEND_PREVIEW && <p>{t('Sign-in, account creation, and farm tools will be available when the AgroSphere API is connected.',
         'অ্যাগ্রোস্ফিয়ার এপিআই সংযুক্ত হলে সাইন ইন, অ্যাকাউন্ট তৈরি ও খামারের টুল ব্যবহার করা যাবে।')}</p>}
-      {VERCEL_DEMO && <p>{t('Start a private demo workspace with a sample farm. Use sample data. Uploaded photos may reset.',
+      {VERCEL_DEMO && !showAccountForm && <p>{t('Start a private demo workspace with a sample farm. Use sample data. Uploaded photos may reset.',
         'নমুনা খামার নিয়ে একটি ব্যক্তিগত ডেমো শুরু করুন। নমুনা তথ্য ব্যবহার করুন। আপলোড করা ছবি মুছে যেতে পারে।')}</p>}
       {VERCEL_DEMO && options.isError && <p className="error" role="alert">{t('The demo service is temporarily unavailable.', 'ডেমো সেবাটি সাময়িকভাবে পাওয়া যাচ্ছে না।')}</p>}
       {showAccountForm && <form onSubmit={submit} className="account-fields" aria-busy={busy}>
@@ -192,7 +192,7 @@ export function AccountAccess({locale, marketplace = false}: {locale: Locale; ma
         </button>
       </form>}
       {error && <p className="error" role="alert">{error}</p>}
-      {(VERCEL_DEMO || (options.data?.demo && !marketplace)) && <button type="button" className={VERCEL_DEMO ? 'btn primary' : 'btn secondary'} disabled={busy || !options.data?.demo}
+      {(VERCEL_DEMO || (options.data?.demo && !marketplace)) && <button type="button" className={showAccountForm ? 'btn secondary' : 'btn primary'} disabled={busy || !options.data?.demo}
         onClick={() => void run(async () => {
           const {token} = await request<{token: string}>('/auth/demo', {
             method: 'POST', body: JSON.stringify({name: t('Demo farmer', 'ডেমো কৃষক')}),

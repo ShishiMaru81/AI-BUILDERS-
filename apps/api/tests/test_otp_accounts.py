@@ -28,6 +28,37 @@ def test_unconfigured_otp_never_claims_to_send_a_code(client, monkeypatch):
     assert 'verification_id' not in response.json()
 
 
+def test_hosted_accounts_allow_password_signup_and_login_with_encryption(client, monkeypatch):
+    monkeypatch.setenv('HOSTING_TIER', 'vercel_demo')
+    monkeypatch.setenv('ENABLE_HOSTED_ACCOUNTS', '1')
+    monkeypatch.setenv('SIGNUP_DATA_KEY', 'invalid-test-key')
+    assert client.get('/api/v1/auth/options').json()['signup'] is False
+    assert client.post('/api/v1/auth/signup', json={}).status_code == 403
+
+    monkeypatch.setenv('SIGNUP_DATA_KEY', Fernet.generate_key().decode())
+    options = client.get('/api/v1/auth/options').json()
+    assert options['demo'] and options['signup'] and not options['otp']
+    contact = 'hosted-test@example.test'
+    password = 'synthetic test password'
+    profile = {
+        'name': 'Hosted Test Farmer', 'age': 27, 'role': 'farmer', 'gender': 'female',
+        'national_id': '1234567890', 'present_address': 'Sample test address',
+        'permanent_address': 'Sample test address', 'ward_number': '12',
+        'photo_base64': base64.b64encode(picture()).decode(),
+        'password': password, 'confirm_password': password,
+    }
+    signup = client.post('/api/v1/auth/signup', json={'contact': contact, 'profile': profile})
+    assert signup.status_code == 200, signup.text
+    assert client.post('/api/v1/auth/otp/start', json={'contact': contact, 'purpose': 'signup'}).status_code == 403
+    login = client.post('/api/v1/auth/password', json={'contact': contact, 'password': password})
+    assert login.status_code == 200
+    headers = {'Authorization': 'Bearer ' + login.json()['token']}
+    own = client.get('/api/v1/me', headers=headers).json()
+    assert own['id'] == signup.json()['user']['id'] and own['role'] == 'farmer'
+    assert 'national_id' not in own and 'permanent_address' not in own
+    assert client.get('/api/v1/me/signup-photo', headers=headers).status_code == 200
+
+
 def test_account_sid_and_auth_token_can_send_verification(client, monkeypatch):
     monkeypatch.delenv('TWILIO_API_KEY_SID')
     monkeypatch.delenv('TWILIO_API_KEY_SECRET')

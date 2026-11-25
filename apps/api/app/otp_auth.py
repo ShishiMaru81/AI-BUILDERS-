@@ -103,6 +103,18 @@ def identity_cipher() -> Fernet:
         raise HTTPException(503, 'Private signup storage is not configured on this server') from None
 
 
+def signup_key_available() -> bool:
+    try:
+        identity_cipher()
+    except HTTPException:
+        return False
+    return True
+
+
+def hosted_password_accounts_enabled() -> bool:
+    return os.getenv('ENABLE_HOSTED_ACCOUNTS') == '1' and signup_key_available()
+
+
 def open_identity(encrypted: bytes) -> bytes:
     try:
         return identity_cipher().decrypt(encrypted)
@@ -248,16 +260,11 @@ def password_login(body: ContactPassword, request: Request, response: Response, 
 @router.get('/options')
 def auth_options():
     if public_demo_enabled():
-        return {'demo': demo_login_enabled(), 'otp': False, 'signup': False,
+        return {'demo': demo_login_enabled(), 'otp': False, 'signup': hosted_password_accounts_enabled(),
                 'channels': {'email': False, 'sms': False}, 'default_channel': 'phone'}
     channels = available_channels()
     otp = any(channels.values())
-    try:
-        identity_cipher()
-        signup = True
-    except HTTPException:
-        signup = False
-    return {'demo': demo_login_enabled(), 'otp': otp, 'signup': signup, 'channels': channels,
+    return {'demo': demo_login_enabled(), 'otp': otp, 'signup': signup_key_available(), 'channels': channels,
             'default_channel': 'email' if email_provider() == 'smtp' else 'phone'}
 
 
