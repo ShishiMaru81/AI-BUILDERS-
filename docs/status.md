@@ -1,3 +1,13 @@
+## Farm tools and Bangla dictation · 25 November 2026
+
+The farmer workspace now includes a stage-based potato and tomato calendar, due reminders and evidence-based scouting and drainage alerts. The plot cash ledger records cash received and farming expenses in BDT. It also calculates the break-even price for a user-entered saleable weight. Storage batches retain harvest and storage dates, inspections, recorded losses and withdrawals. Balances use validated decimal quantities.
+
+Farmer Chat supports Bangla and English dictation with an editable draft. Reply playback uses an installed matching voice. Browser speech services and device language support determine availability. In-app alerts use saved evidence and are visible when the app is open. Official flood warnings still come from FFWC.
+
+The community map shows district and crop bands only after three distinct eligible farmers share recent screenings. Reporters can withdraw consent. Deleting a shared screening removes its report. The map describes community observations and has no independent verification feed. The offline notebook saves a read-only, encrypted copy on the current device. The service worker caches only its public assets and does not save API responses.
+
+The full API suite passed 326 tests. Final focused API checks also passed, including stale forecast suppression and report withdrawal. All 91 web unit tests, TypeScript and the production build passed. Browser checks exercised real network-offline readback, simulated Bangla speech recognition and all five Bangla panels at 375 pixels. The full browser run passed 44 of 46. The mobile chat test passed five consecutive runs after its viewport assertion was updated to wait for the plot to load. The existing private marketplace gallery fixture still fails at the farmer role check. This release has no measured Bangla transcription accuracy or field validation of the scouting prompts.
+
 ## FloodCrop rainfall outlook · 20 November 2026
 
 FloodCrop now sums complete hourly intervals inside the selected 24-, 48- or 72-hour window. Open-Meteo labels precipitation by the end of each hour. Counting the hour before the window could change the preparation advice. Each outlook expires at the end of its selected window. A missing reading in that window produces a retryable error. [Open-Meteo hourly definitions](https://open-meteo.com/en/docs#hourly_parameter_definition)

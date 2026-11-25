@@ -122,10 +122,13 @@ test('Bengali mobile chat scopes a saved case and leaves preview drafts editable
   const input = chat.getByRole('textbox', {name: 'আপনার প্রশ্ন'});
   await expect(input).toHaveValue('আমার ছবিতে পাতার দাগ দেখা যাচ্ছে।');
   expect(sent).toHaveLength(0);
-  const bounds = await chat.boundingBox();
-  expect(bounds!.x).toBeGreaterThanOrEqual(0);
-  expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(360);
-  expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(640);
+  await expect(async () => {
+    const bounds = await chat.boundingBox();
+    expect(bounds).not.toBeNull();
+    expect(bounds!.x).toBeGreaterThanOrEqual(0);
+    expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(360);
+    expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(640);
+  }).toPass({timeout:5000});
   await open({caseId: 'saved-screening'});
   await expect(input).toHaveValue('');
   await chat.getByRole('button', {name: 'এই ফলাফলের মানে কী?'}).click();

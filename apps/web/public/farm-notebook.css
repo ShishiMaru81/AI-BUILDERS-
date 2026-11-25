@@ -1,0 +1,9 @@
+:root {color-scheme:light; font:17px/1.6 system-ui,sans-serif; color:#172e24; background:#edf4ee}
+body {margin:0; padding:1.15rem}
+main {max-width:42rem; margin:2rem auto; background:white; padding:clamp(1rem,6vw,2.5rem); border-radius:1rem}
+h1,h2,li {overflow-wrap:anywhere}
+a {color:#126443}
+form {display:grid; gap:.65rem; max-width:27rem}
+input,button {font:inherit; padding:.65rem; border:1px solid #537361; border-radius:.5rem}
+button {cursor:pointer; color:white; background:#174a36}
+section {margin-bottom:1rem}

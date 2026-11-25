@@ -2,6 +2,8 @@
 
 A software-first agricultural workspace: AgroDoctor crop-photo screening, FloodCrop rainfall preparedness, KrishiMarket net selling comparisons, shared farms, actions and future sensor ingestion.
 
+Open **Farm tools** as a farmer for the crop calendar, in-app alerts and reminders, plot cash ledger, storage batches, community map and encrypted offline notebook. **Farmer Chat** also accepts voice drafts on supported browsers. See the [farm tools plan and release scope](docs/farm-tools-plan.md).
+
 For a public website, see [Netlify + free backend deployment](docs/netlify-deployment.md). The root `netlify.toml` configures the frontend and `render.yaml` prepares the separate free Python/PostgreSQL demo backend. Cloud deployment requires account authorization and the real HTTPS backend URL; localhost Docker URLs cannot serve Netlify visitors.
 
 ## KrishiMarket marketplace

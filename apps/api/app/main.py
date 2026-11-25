@@ -34,6 +34,7 @@ from .market_privacy import owner_export as market_owner_export, erase_account a
 from .market_auth import router as auth_router, AuthLimiter
 from .otp_auth import router as otp_router, demo_login_enabled, open_identity
 from .rescue import router as rescue_router
+from .farm_tools import RECORD_KINDS as FARM_TOOL_RECORDS, router as farm_tools_router
 from . import market_models, market_service
 from .db import Base, Reading, Record, SignupIdentity, Token, User, engine, ensure_compat_schema, get_db, now
 from . import doctor_vision, farmer_chat
@@ -425,6 +426,8 @@ def _plots_for_farm(db: DBSession, user: User, farm_id: str) -> list[Record]:
 
 
 def _delete_case_artifacts(db: DBSession, user: User, case: Record) -> list[Path]:
+    db.execute(delete(Record).where(Record.owner_id == user.id, Record.kind == 'community_report',
+                                   Record.source_record_id == case.id))
     files = case_photo_paths(storage, case.payload)
     db.execute(delete(Record).where(Record.owner_id == user.id, Record.kind == 'farmer_chat',
                                     Record.source_record_id == case.id))
@@ -454,7 +457,8 @@ def _cascade_plot(db: DBSession, user: User, plot: Record) -> list[Path]:
     files = []
     for case in list(records(db, user, 'case', plot_id)):
         files.extend(_delete_case_artifacts(db, user, case))
-    for kind in ('weather', 'action', 'notification', 'feedback', 'comparison_scenario', 'comparison', 'rescue_plan', 'farmer_chat'):
+    for kind in ('weather', 'action', 'notification', 'feedback', 'comparison_scenario', 'comparison',
+                 'rescue_plan', 'farmer_chat', *FARM_TOOL_RECORDS):
         for r in list(records(db, user, kind, plot_id)):
             db.delete(r)
     for device in list(records(db, user, 'device', plot_id)):
@@ -2105,3 +2109,4 @@ app.include_router(otp_router)
 from .market import router as market_router
 app.include_router(market_router)
 app.include_router(rescue_router)
+app.include_router(farm_tools_router)

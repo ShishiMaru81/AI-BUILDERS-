@@ -4,7 +4,7 @@ import Workspace from '@/components/workspace';
 const VALID_LOCALES = new Set(['en', 'bn']);
 const VALID_PAGES = new Set([
   'dashboard','agrodoctor','floodcrop','market','agrorescue','action-center',
-  'marketplace','farms','history','transparency','devices','settings','landing',
+  'marketplace','farms','farm-tools','history','transparency','devices','settings','landing',
 ]);
 
 export default async function Page({

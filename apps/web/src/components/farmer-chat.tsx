@@ -5,6 +5,7 @@ import {usePathname} from 'next/navigation';
 import {useQueryClient} from '@tanstack/react-query';
 import {ArrowRight, ArrowUp, ArrowUpRight, BookOpen, Check, ChevronLeft, CloudRain, Copy, FileText, History, Leaf, LoaderCircle, MapPin, MessageCircle, NotebookPen, Phone, ScanLine, ShoppingBasket, Sprout, SquarePen, X} from 'lucide-react';
 import {ApiError, request} from '@/lib/api';
+import {ChatDictation, ReadChatReply} from './chat-speech';
 import styles from './farmer-chat.module.css';
 
 type Locale = 'en' | 'bn';
@@ -103,12 +104,15 @@ function Handoff({action, t}: {action: Action; t: Labels}) {
   </details>;
 }
 
-function Reply({message, locale, busy, onNote}: {message: Message; locale: Locale; busy: boolean; onNote: (id: string) => void}) {
+function Reply({message, locale, busy, visible, onNote}: {
+  message: Message; locale: Locale; busy: boolean; visible: boolean; onNote: (id: string) => void;
+}) {
   const t = labels[locale];
   if (message.role === 'user') return <article className={styles.user} aria-label={t.you}><p>{message.text}</p></article>;
   return <article className={styles.reply} aria-label={t.title}>
     <div className={styles.byline}><Sprout size={14}/>{message.mode ? t[message.mode] : t.title}</div>
     <p>{message.text}</p>
+    {visible&&<ReadChatReply text={message.text} locale={locale}/>}
     {!!message.sources?.length && <div className={styles.sources}>
       <strong><BookOpen size={13}/>{t.sources}</strong>
       <ul>{message.sources.map((source, i) => <li key={i}>
@@ -314,7 +318,7 @@ function ChatPanel({locale, plotId, plotName, caseId, storeKey, visible, onClose
           </button>)}
         </div>}
         <div role="log" aria-label={t.title} aria-live="polite" aria-relevant="additions" className={styles.log}>
-          {conversation?.messages.map(message => <Reply key={message.id} message={message} locale={locale} busy={busy}
+          {conversation?.messages.map(message => <Reply key={message.id} message={message} locale={locale} busy={busy} visible={visible}
             onNote={id => void perform({kind: 'note', id})}/>)}
           {pending?.kind === 'send' && <article className={styles.user} aria-label={t.you}><p>{pending.text}</p></article>}
         </div>
@@ -324,6 +328,7 @@ function ChatPanel({locale, plotId, plotName, caseId, storeKey, visible, onClose
         </div>}
       </div>
       {tooLong && <p className={styles.limit} id="farmer-chat-limit" role="status">{t.tooLong}</p>}
+      {visible&&<ChatDictation locale={locale} disabled={busy} onTranscript={text => setDraft(previous => previous.trim() ? previous.trimEnd() + ' ' + text : text)}/>}
       <form className={styles.composer} onSubmit={e => {e.preventDefault(); send(draft);}}>
         <textarea ref={input} rows={2} value={draft} readOnly={!!pending} aria-label={t.input} aria-invalid={tooLong} aria-describedby={tooLong ? 'farmer-chat-limit' : undefined} placeholder={t.placeholder} onChange={e => setDraft(e.target.value)}
           onKeyDown={e => {

@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#174a36">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <link rel="manifest" href="/farm-notebook.webmanifest">
+  <link rel="stylesheet" href="/farm-notebook.css">
+  <script defer src="/farm-notebook.js"></script>
+  <title>AgroSphere Farm Notebook</title>
+</head>
+<body>
+  <main>
+    <a href="/en/farm-tools">Open AgroSphere / অ্যাগ্রোস্ফিয়ার খুলুন</a>
+    <h1>Offline farm notebook</h1>
+    <p lang="bn">অফলাইন খামারের খাতা</p>
+    <form id="unlock">
+      <label for="password">Notebook passphrase / খাতার পাসওয়ার্ড</label>
+      <input id="password" type="password" required autocomplete="off">
+      <button>Unlock / খুলুন</button>
+    </form>
+    <p role="status" id="status"></p>
+    <section id="snapshot" aria-live="polite"></section>
+    <button id="forget" type="button">Delete offline copy / অফলাইন কপি মুছুন</button>
+  </main>
+</body>
+</html>
