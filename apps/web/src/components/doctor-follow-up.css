@@ -21,3 +21,26 @@
   border-radius: .5rem;
 }
 .doctor-followup summary { cursor: pointer; padding-block: .5rem; }
+.doctor-followup-views {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.55rem;}
+.doctor-followup-views figure {margin:0;min-width:0;border:1px solid var(--line);border-radius:.55rem;padding:.45rem;background:var(--canvas);}
+.doctor-followup-views figcaption {font-weight:650;font-size:.79rem;margin-bottom:.35rem;}
+.doctor-followup-views img {margin:0;max-height:none;aspect-ratio:4/3;width:100%;height:auto;}
+.doctor-followup-progress {
+  display:flex;
+  align-items:center;
+  gap:.65rem;
+  margin-top:.8rem;
+  color:var(--muted);
+}
+.doctor-followup-progress span {
+  width:2.15rem;
+  height:.3rem;
+  border-radius:1rem;
+  background:linear-gradient(90deg,var(--line),var(--primary),var(--line));
+  background-size:240% 100%;
+  animation:doctor-photo-review 1.25s linear infinite;
+}
+@keyframes doctor-photo-review { to { background-position:240% 0; } }
+@media (prefers-reduced-motion:reduce) {
+  .doctor-followup-progress span {animation:none;}
+}

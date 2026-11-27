@@ -2,9 +2,9 @@
 import Link from 'next/link';
 import {useEffect,useRef,useState} from 'react';
 import {useQuery,useQueryClient} from '@tanstack/react-query';
-import {ArrowRight,Camera,CheckCircle2,Download,ImagePlus,Leaf,LoaderCircle,MessageCircle,ScanLine,Trash2} from 'lucide-react';
+import {ArrowRight,Camera,CheckCircle2,Download,ImagePlus,Leaf,LoaderCircle,ScanLine,Trash2} from 'lucide-react';
 import {API,ApiError,download,formatTime,getSessionToken,request} from '@/lib/api';
-import {DoctorFollowUp} from './doctor-follow-up';
+import {DoctorCopilot} from './doctor-copilot';
 import {FarmerQuestions, FarmerActionCard} from './farmer-guidance';
 import {initialFarmerContext} from '@/lib/farmer-guidance';
 import {cropGuides,potatoFieldChecks} from '@/lib/doctor-guidance';
@@ -179,7 +179,7 @@ export function DoctorStudio({plot,plots,plotsLoading,farms,farmStatus,retryFarm
    onClick={()=>void screen('research_produce')}>{t('Preview with research produce model','গবেষণার ফল ও কন্দের মডেল দিয়ে পরীক্ষা করুন')}</button>}
   {!vision&&part==='leaf'&&<p className="helper">{t('Research screening only. Confirm the crop yourself. Unknown diseases and non-leaf images may receive high scores; this is not a diagnosis.','এটি গবেষণা পর্যায়ের সহায়তা। ফসল নিজে নিশ্চিত করুন। অজানা রোগ বা পাতাবিহীন ছবিতেও বেশি স্কোর আসতে পারে; এটি নিশ্চিত রোগ নির্ণয় নয়।')}</p>}
   {!vision&&part==='leaf'&&capability&&<details><summary>{t('Supported conditions & limits','সমর্থিত অবস্থা ও সীমাবদ্ধতা')} ({capability.labels.length})</summary><p>{capability.labels.map(conditionName).join(' · ')}</p>{!capability.has_healthy_class&&<p className="error">{t('This crop has no healthy reference class. A healthy leaf cannot be ruled in or out.','এই ফসলের সুস্থ পাতার শ্রেণি নেই। সুস্থ কি না নিশ্চিত করা যায় না।')}</p>}<small>{capability.model_version} · {t('Not field-validated','মাঠ পর্যায়ে যাচাই করা হয়নি')}</small></details>}
- </>}</section>{showUpload&&<div className="stack">{result?<DoctorResult result={result} locale={locale} originalFile={file} onUpdate={setResult}/>:<section className="panel result-placeholder"><ScanLine size={38}/><h3>{t('Room for understanding.','ফসলকে বোঝার সুযোগ।')}</h3><p>{t('Your screening, possible conditions, model evidence and next steps will appear here.','পরীক্ষার ফল, সম্ভাব্য অবস্থা ও পরবর্তী করণীয় এখানে দেখুন।')}</p><span className="badge amber">{t('Uncertainty is part of the result','ফলাফলে অনিশ্চয়তা থাকে')}</span></section>}<section className="panel"><h3>{t('Photograph the affected area','আক্রান্ত অংশের ছবি তুলুন')}</h3>{[t('Use natural, even light.','প্রাকৃতিক ও সমান আলো ব্যবহার করুন।'),t('Get close and keep the camera steady.','কাছ থেকে স্থির ক্যামেরায় ছবি নিন।'),t('Include healthy tissue next to the damaged area.','আক্রান্ত অংশের পাশের সুস্থ অংশও ছবিতে রাখুন।'),t('Avoid filters and distracting backgrounds.','ফিল্টার ও জটিল পটভূমি এড়িয়ে চলুন।')].map((tip,i)=><div className="tip" key={tip}><span>{i+1}</span>{tip}</div>)}</section></div>}</div>
+ </>}</section>{showUpload&&<div className="stack">{result?<DoctorResult result={result} locale={locale} originalFile={file} originalPreview={preview} onUpdate={setResult}/>:<section className="panel result-placeholder"><ScanLine size={38}/><h3>{t('Room for understanding.','ফসলকে বোঝার সুযোগ।')}</h3><p>{t('Your screening, possible conditions, model evidence and next steps will appear here.','পরীক্ষার ফল, সম্ভাব্য অবস্থা ও পরবর্তী করণীয় এখানে দেখুন।')}</p><span className="badge amber">{t('Uncertainty is part of the result','ফলাফলে অনিশ্চয়তা থাকে')}</span></section>}<section className="panel"><h3>{t('Photograph the affected area','আক্রান্ত অংশের ছবি তুলুন')}</h3>{[t('Use natural, even light.','প্রাকৃতিক ও সমান আলো ব্যবহার করুন।'),t('Get close and keep the camera steady.','কাছ থেকে স্থির ক্যামেরায় ছবি নিন।'),t('Include healthy tissue next to the damaged area.','আক্রান্ত অংশের পাশের সুস্থ অংশও ছবিতে রাখুন।'),t('Avoid filters and distracting backgrounds.','ফিল্টার ও জটিল পটভূমি এড়িয়ে চলুন।')].map((tip,i)=><div className="tip" key={tip}><span>{i+1}</span>{tip}</div>)}</section></div>}</div>
  <section className="panel"><h2>{t('Recent screenings','সাম্প্রতিক পরীক্ষা')} · {casesTotal}</h2>{casesError&&<p className="error" role="alert">{casesError}</p>}{casesFetching&&!cases.length?<p role="status">{t('Loading screenings…','পরীক্ষা লোড হচ্ছে…')}</p>:<CaseList cases={cases} locale={locale}/>}<CasePagination total={casesTotal} shown={cases.length} hasMore={casesHasMore} pending={casesFetching} onLoadMore={onLoadMore}/></section></>;
 }
 
@@ -204,10 +204,24 @@ function PlantPartGuide({crop,locale}:{crop:string;locale:Locale}){
  </div>;
 }
 
-export function DoctorResult({result,locale='en',imgUrl,imgError,originalFile,onUpdate}:{result:DoctorScreening;locale?:Locale;imgUrl?:string;imgError?:string;originalFile?:File;onUpdate?:(updated:DoctorScreening)=>void}){
+export function DoctorResult({result,locale='en',imgUrl,imgError,originalFile,originalPreview,onUpdate}:{result:DoctorScreening;locale?:Locale;imgUrl?:string;imgError?:string;originalFile?:File;originalPreview?:string;onUpdate?:(updated:DoctorScreening)=>void}){
  const t=(en:string,bn:string)=>locale==='bn'?bn:en;const {data:capabilities}=useDoctorCapabilities();
  const produceResearch=result.model.model_id==='agrodoctor-research-produce';
  const submittedPhoto=imgUrl&&<img src={imgUrl} alt={produceResearch||result.assessment?t('Submitted crop photo','জমা দেওয়া ফসলের ছবি'):t('Submitted leaf photo','জমা দেওয়া পাতার ছবি')} style={{width:'100%',maxHeight:260,objectFit:'contain'}}/>;
+ const askAboutResult=(topic:'screening'|'treatment'='screening')=>{
+  const finding=result.assessment;
+  const observation=finding?[finding.subject,...finding.signs,finding.uncertainty].filter(Boolean).join(' '):
+    result.classification.abstained?t('Inconclusive screening','পরীক্ষায় নির্দিষ্ট ফল পাওয়া যায়নি'):conditionName(result.classification.top_label);
+  const draft=topic==='treatment'
+    ? (result.id?t('What treatment options are supported by this saved crop screening?','সংরক্ষিত ফসলের এই পরীক্ষায় প্রতিকারের কী বিকল্প আছে?'):
+      t('How should I confirm whether a treatment is appropriate for this crop?','এই ফসলে প্রতিকার দরকার কি না কীভাবে যাচাই করব?'))
+    : result.id?t('What should I check next in this saved crop screening?','সংরক্ষিত ফসলের এই পরীক্ষায় এরপর কী দেখব?'):
+      t('My unsaved AgroDoctor screening says','অ্যাগ্রোডক্টরের অসংরক্ষিত পরীক্ষায় দেখা গেছে')+' — '+observation.slice(0,900)+' '+t('What should I check next?','এরপর কী দেখব?');
+  window.dispatchEvent(new CustomEvent('agrosphere:open-farmer-chat',{detail:{caseId:result.id,plotId:result.plot_id??undefined,draft}}));
+ };
+ const copilot=<DoctorCopilot key={result.id??'preview'} result={result} locale={locale}
+   visionAvailable={capabilities?.provider==='groq'} originalFile={originalFile} originalPreview={imgUrl || originalPreview}
+   onUpdate={onUpdate} onAsk={askAboutResult}/>;
  if(produceResearch){
   const damage=result.classification.top_label.endsWith('___Visible_damage');
   return <section className="panel result ui-reveal" aria-label="Screening result">
@@ -220,17 +234,10 @@ export function DoctorResult({result,locale='en',imgUrl,imgError,originalFile,on
    <h3>{t('What to check next','এরপর কী দেখবেন')}</h3>
    <ul><li>{t('Turn the item over and photograph it in even light.','ফল বা কন্দটি উল্টে সমান আলোতে ছবি তুলুন।')}</li>
    <li>{t('Set visibly damaged items aside and check others from the same batch.','ক্ষতিগ্রস্ত ফল বা কন্দ আলাদা করে একই ব্যাচের বাকিগুলো দেখুন।')}</li></ul>
+   {copilot}
    <div className="model-evidence"><strong>{result.model.version}</strong></div>
   </section>;
  }
- const askAboutResult=()=>{
-  const finding=result.assessment;
-  const observation=finding?[finding.subject,...finding.signs,finding.uncertainty].filter(Boolean).join(' '):
-    result.classification.abstained?t('Inconclusive screening','পরীক্ষায় নির্দিষ্ট ফল পাওয়া যায়নি'):conditionName(result.classification.top_label);
-  const draft=result.id?undefined:t('My unsaved AgroDoctor screening says','অ্যাগ্রোডক্টরের অসংরক্ষিত পরীক্ষায় দেখা গেছে')+' — '+observation.slice(0,900)+' '+t('What should I check next?','এরপর কী দেখব?');
-  window.dispatchEvent(new CustomEvent('agrosphere:open-farmer-chat',{detail:{caseId:result.id,plotId:result.plot_id??undefined,draft}}));
- };
- const chatButton=<button type="button" className="btn secondary" onClick={askAboutResult}><MessageCircle size={16}/>{t('Ask about this screening','এই পরীক্ষার ফল নিয়ে প্রশ্ন করুন')}</button>;
  const potatoChecks=result.crop==='potato'&&(!result.assessment||result.assessment.part==='leaf')&&
   <details>
    <summary>{t('Check for other potato leaf problems','আলুর পাতার অন্যান্য সমস্যা দেখুন')}</summary>
@@ -270,9 +277,7 @@ export function DoctorResult({result,locale='en',imgUrl,imgError,originalFile,on
     <a href={a.field_check.source_url} target="_blank" rel="noreferrer">{t('Field reference','মাঠ নির্দেশিকা')}</a>
    </div>}
    <FarmerActionCard result={result} locale={locale}/>
-   {chatButton}
-   {(capabilities?.provider==='groq'||result.photo_count===2)&&<DoctorFollowUp key={result.id??'preview'}
-     result={result} locale={locale} originalFile={originalFile} onUpdate={onUpdate}/>}
+   {copilot}
    <details><summary>{t('More checks from the photo','ছবি অনুযায়ী আরও যা দেখবেন')}</summary>
     <ul>{result.advice.map((step,i)=><li key={i}>{step}</li>)}</ul></details>
    {potatoChecks}
@@ -305,7 +310,7 @@ export function DoctorResult({result,locale='en',imgUrl,imgError,originalFile,on
   <p>{reasons[result.classification.rejection_reason||'']||t('Screening support only. Ask a qualified agronomist to review symptoms.','এটি প্রাথমিক সহায়তা। কৃষিবিদের পরামর্শ নিন।')}</p>
   {!classification.abstained&&classification.score!=null&&<p>{t('Uncalibrated model score','অক্যালিব্রেটেড মডেল স্কোর')}: {(classification.score*100).toFixed(1)}% · {t('Not diagnostic certainty','নিশ্চিত রোগ নির্ণয় নয়')}</p>}
    <FarmerActionCard result={result} locale={locale}/>
-   {chatButton}
+   {copilot}
   {result.quality_flags.map(flag=><span className="badge amber" key={flag}>{flag.replaceAll('_',' ')}</span>)}
   {cropOptions.length===0&&result.classification.alternatives.length>0&&<details><summary>{t('Raw model alternatives','মডেলের বিকল্প স্কোর')}</summary>{result.classification.alternatives.map(a=><p key={a.label}>{a.label.split('___')[0].replaceAll('_',' ')} · {conditionName(a.label)}: {(a.score*100).toFixed(1)}%</p>)}</details>}
   {classification.abstained&&cropOptions.length>0&&<details>

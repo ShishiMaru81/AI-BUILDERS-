@@ -36,10 +36,15 @@ from .market_privacy import owner_export as market_owner_export, erase_account a
 from .market_auth import router as auth_router, AuthLimiter
 from .otp_auth import router as otp_router, demo_login_enabled, hosted_password_accounts_enabled, open_identity
 from .rescue import router as rescue_router
-from .farm_tools import RECORD_KINDS as FARM_TOOL_RECORDS, router as farm_tools_router
+from .farm_tools import (
+    RECORD_KINDS as FARM_TOOL_RECORDS,
+    case_reminder,
+    router as farm_tools_router,
+    save_case_reminder,
+)
 from . import market_models, market_service
 from .db import Base, Reading, Record, SignupIdentity, Token, User, engine, ensure_compat_schema, get_db, now
-from . import doctor_vision, farmer_chat
+from . import doctor_treatment, doctor_vision, farmer_chat
 from . import district_prices
 from .district_prices_catalog import COMMODITY_OPTIONS
 from .doctor_context import FarmerContext
@@ -51,6 +56,8 @@ from .schemas import (
     ComparisonScenarioInput,
     DemoLogin,
     DeviceInput,
+    DoctorCheckInInput,
+    DoctorReminderInput,
     FarmCreate,
     FarmLocationInput,
     FarmPatch,
@@ -441,11 +448,9 @@ def _plots_for_farm(db: DBSession, user: User, farm_id: str) -> list[Record]:
 
 
 def _delete_case_artifacts(db: DBSession, user: User, case: Record) -> list[Path]:
-    db.execute(delete(Record).where(Record.owner_id == user.id, Record.kind == 'community_report',
+    db.execute(delete(Record).where(Record.owner_id == user.id, Record.kind.in_(('community_report', 'farm_reminder', 'farmer_chat')),
                                    Record.source_record_id == case.id))
     files = case_photo_paths(storage, case.payload)
-    db.execute(delete(Record).where(Record.owner_id == user.id, Record.kind == 'farmer_chat',
-                                    Record.source_record_id == case.id))
     for fb in list(records(db, user, 'feedback', case.plot_id)):
         if fb.source_record_id == case.id or fb.payload.get('case_id') == case.id:
             db.delete(fb)
@@ -983,9 +988,10 @@ def upload(
     if context is not None:
         result['farmer_context'] = context
     if 'assessment' in result and p is not None and not _confirmed_plot_crop(result):
-        return {**result, 'save_notice': 'plot_crop_unconfirmed'}
+        return {**result, 'save_notice': 'plot_crop_unconfirmed',
+                'treatment_guidance': doctor_treatment.guidance_by_language(result)}
     if p is None:
-        return result
+        return {**result, 'treatment_guidance': doctor_treatment.guidance_by_language(result)}
     filename = uuid4().hex + '.jpg'
     try:
         with market_service.transaction() as tx:
@@ -1012,6 +1018,7 @@ def _case_view(c: Record) -> dict:
     second = c.payload.get('follow_up_image_file')
     data['second_photo_available'] = bool(second and (storage / Path(second).name).is_file())
     data.setdefault('photo_count', 2 if second else 1)
+    data['treatment_guidance'] = doctor_treatment.guidance_by_language(data)
     return data
 
 
@@ -1054,14 +1061,17 @@ def cases(
 def case(id: str, user: Farmer, db: Db):
     c = owned(db, user, id, 'case')
     data = _case_view(c)
-    data['feedback'] = _case_feedback(db, user, id, c.plot_id)
+    observations = _case_feedback(db, user, id, c.plot_id)
+    data['feedback'] = [row for row in observations if 'change' not in row]
+    data['check_ins'] = [row for row in observations if 'change' in row]
+    data['follow_up_reminder'] = case_reminder(db, user, id)
     return data
 
 
 @app.get('/api/v1/doctor/cases/{id}/feedback')
 def list_feedback(id: str, user: Farmer, db: Db):
     c = owned(db, user, id, 'case')
-    return _case_feedback(db, user, id, c.plot_id)
+    return [row for row in _case_feedback(db, user, id, c.plot_id) if 'change' not in row]
 
 
 def _case_image_bytes(payload: dict, view: str) -> bytes:
@@ -1153,6 +1163,33 @@ def feedback(id: str, body: FeedbackInput, user: Farmer, db: Db):
     audit(db, user, 'doctor.review_requested' if body.request_review else 'doctor.feedback', id, c.plot_id)
     db.commit()
     return view(r)
+
+
+@app.post('/api/v1/doctor/cases/{id}/check-ins', status_code=201)
+def doctor_check_in(id: str, body: DoctorCheckInInput, user: Farmer):
+    with market_service.transaction() as tx:
+        actor = market_service.actor(tx, user, roles={'farmer'})
+        c = owned(tx, actor, id, 'case')
+        payload = {'case_id': id, **body.model_dump()}
+        previous = tx.scalar(select(Record).where(
+            Record.owner_id == actor.id, Record.kind == 'feedback', Record.source_record_id == c.id,
+            Record.payload['request_id'].as_string() == body.request_id,
+        ))
+        if previous:
+            if previous.payload != payload:
+                raise HTTPException(409, 'This check-in request was already used with a different observation')
+            return view(previous)
+        row = add(tx, actor, 'feedback', payload, c.plot_id, farm_id=c.farm_id, source_record_id=c.id)
+        audit(tx, actor, 'doctor.check_in_saved', id, c.plot_id)
+        return view(row)
+
+
+@app.post('/api/v1/doctor/cases/{id}/reminder')
+def doctor_reminder(id: str, body: DoctorReminderInput, user: Farmer):
+    with market_service.transaction() as tx:
+        actor = market_service.actor(tx, user, roles={'farmer'})
+        c = owned(tx, actor, id, 'case')
+        return save_case_reminder(tx, actor, c, body.due_on, body.locale)
 
 
 @app.get('/api/v1/doctor/cases/{id}/report')
@@ -1993,8 +2030,15 @@ def _chat_snapshot(db, user, plot, case):
                                            'status':'saved forecast · '+str(meta.get('freshness','unknown'))}
     if case:
         result['case_id'] = case.id
+        result['treatment_guidance'] = doctor_treatment.guidance_by_language(case.payload)
         result['case'] = dict(farmer_chat.case_evidence(case.payload), created_at=case.created_at)
-        result['case']['farmer_notes'] = [r['note'][:400] for r in _case_feedback(db,user,case.id,case.plot_id)[:4] if r.get('note')]
+        observations = _case_feedback(db, user, case.id, case.plot_id)
+        result['case']['farmer_notes'] = [row['note'][:400] for row in observations
+                                         if 'change' not in row and row.get('note')][:4]
+        result['case']['farmer_check_ins'] = [
+            {'change': row['change'], 'note': row['note'][:400], 'recorded_at': row['created_at']}
+            for row in observations if 'change' in row
+        ][:4]
     return result
 
 

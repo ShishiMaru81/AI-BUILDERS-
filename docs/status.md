@@ -1,3 +1,13 @@
+## AgroDoctor treatment guidance · 27 November 2026
+
+The Follow-up Copilot and Farmer Chat now share a reviewed treatment lookup. Two examples from the Bangladesh DAE register cover supported tomato blight and potato late blight matches. Each shows the registration identifier and links for current label verification. Uncertain, viral and harvested cases get guidance appropriate to those findings. Current product labels and crop suitability still require local verification. [AgroDoctor treatment workflow](agrodoctor-multicrop.md#treatment-guidance)
+
+## AgroDoctor Follow-up Copilot · 27 November 2026
+
+The screening result now includes a bilingual follow-up panel. Farmers can compare two labelled photo views on compatible vision cases, record dated changes they observed, and schedule an in-app recheck on the original plot. Reopening a case restores check-ins and reminders. Farmer Chat receives recent check-ins as farmer-reported observations when asked about that saved case. Motion follows the device's reduced-motion setting.
+
+Two-photo review uses Groq vision when available and supports one additional view per case. Two views do not establish change over time. Case reminders appear in Farm tools, and case deletion removes check-ins and the linked reminder. [AgroDoctor follow-up workflow](agrodoctor-multicrop.md#follow-up-copilot)
+
 ## Admin console · 27 November 2026
 
 The signup and sign-in page opens a separate administrator login. Authenticated administrators can review users, seller verification, marketplace listings, reports, orders, auctions, audit events and policies. The dashboard displays aggregate farm activity and the configured state of AgroDoctor and Farmer Chat. Private farm and signup content retains its existing access controls, and activity counts include demo records. [Admin account setup](marketplace.md#roles-and-authentication)

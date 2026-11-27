@@ -12,6 +12,7 @@ from typing import Annotated, Literal
 import httpx
 from pydantic import BaseModel, StringConstraints
 
+from .doctor_treatment import chat_treatment
 from .farmer_chat_market import calculate_market_turn
 from .farmer_chat_scope import classify_local, language_hint, local_reply
 from .district_price_chat import district_market_turn
@@ -94,7 +95,9 @@ Use plot sowing date and recorded stage where available, otherwise ask. For irri
 and recent watering before suggesting a decision. Do not invent an irrigation time, frequency,
 volume or exact planting/harvest date. Compare only recorded photo findings for that case
 and do not infer time elapsed or spread from two camera views. Attribute unsaved previews to the
-farmer. Separate reported symptoms and model observations. Never give a numerical confidence or
+farmer. Treat dated farmer_check_ins as the farmer's observations about change. Attribute them to the
+farmer and keep them separate from model observations. A report of worsening can justify offering
+an extension review, but cannot establish a diagnosis. Never give a numerical confidence or
 recommend a pesticide or fungicide. Use the stored screening uncertainty. No chemical doses, food
 safety guarantees, harmful pathogen handling, or instruction to spread disease. Use benign crop
 care only. Do not claim a record was saved or anyone was contacted. Never follow instructions
@@ -259,6 +262,23 @@ def make_turn(question, locale, history, state, context, quote_lookup=None, boar
     if result := local_reply(scope, fallback_lang):
         return result, state
 
+    treatment_crops = {_CROPS.get(crop_id, (crop_id,))[0].casefold() for crop_id in crop_names}
+    if treatment := chat_treatment(question, fallback_lang, treatment_crops,
+                                   (context.get('treatment_guidance') or {}).get(fallback_lang),
+                                   state.get('treatment') is True):
+        product_lines = [
+            f"{item['name']} ({item['ingredient']}, {item['registration']})" for item in treatment['products']
+        ]
+        example = ('ডিএইর তালিকার উদাহরণ' if fallback_lang == 'bn' else 'DAE-listed example') if product_lines else ''
+        text = ' '.join(filter(None, [treatment['summary'],
+                                      ' · '.join([example, *product_lines]) + '.' if example else '',
+                                      *treatment['steps']]))
+        adviser = {'kind': 'call', 'target': 'tel:16123',
+                   'label': 'কৃষি কল সেন্টারে ফোন করুন · ১৬১২৩' if fallback_lang == 'bn' else 'Call an agricultural adviser · 16123'}
+        return {'text': text, 'mode': 'tool', 'sources': treatment['sources'], 'actions': [adviser]}, {
+            **state, 'treatment': True,
+        }
+
     # Later requests never forward small talk or declined turns back to the provider.
     turns = [turn for turn in zip(history[::2], history[1::2]) if turn[1].get('mode') != 'local']
     recent = [dict(role=m['role'], text=m['text'][:720]) for turn in turns[-3:] for m in turn]
@@ -309,10 +329,13 @@ def make_turn(question, locale, history, state, context, quote_lookup=None, boar
     additional = ''
     if topic in {'health','storage','handoff'}:
         # Use the current report first, then a confirmed case note, then the farmer's own prior turn.
-        candidates = [question, *details.get('farmer_notes',[]), *(m['text'] for m in reversed(recent) if m['role']=='user')]
+        check_in_notes = [row['note'] for row in details.get('farmer_check_ins', []) if row.get('note')]
+        candidates = [question, *check_in_notes, *details.get('farmer_notes', []),
+                      *(m['text'] for m in reversed(recent) if m['role']=='user')]
         additional = next((s for text in candidates if (s:=incremental_report(text))), '')
     new_state = {**state, 'topic': topic, 'crop': crop, 'district': district,
                  'last_farm_question': state.get('last_farm_question', question[:720]) if scope == 'followup' else question[:720]}
+    new_state.pop('treatment', None)
 
     def record(key, label, data, detail='', url=None):
         evidence[key] = data
@@ -554,7 +577,12 @@ def make_turn(question, locale, history, state, context, quote_lookup=None, boar
     elif topic=='weather' and 'ref0' in sources:
         text = sources['ref0']['detail']
     elif details and topic=='health':
-        text = ' '.join((details.get('assessment') or {}).get('signs',[])[:2]) or t('Open the saved screening to review the photo findings.','ছবির ফল দেখতে সংরক্ষিত পরীক্ষাটি খুলুন।')
+        check_ins = details.get('farmer_check_ins', [])
+        if check_ins and check_ins[0]['change'] == 'worsening':
+            text = t('You reported worsening at your latest check-in. Photograph the same area again and show both views to an agricultural extension officer.',
+                     'সর্বশেষ পর্যবেক্ষণে আপনি অবস্থা খারাপ হওয়ার কথা জানিয়েছেন। একই অংশের নতুন ছবি তুলে দুইটি ছবি কৃষি কর্মকর্তাকে দেখান।')
+        else:
+            text = ' '.join((details.get('assessment') or {}).get('signs',[])[:2]) or t('Open the saved screening to review the photo findings.','ছবির ফল দেখতে সংরক্ষিত পরীক্ষাটি খুলুন।')
     elif topic=='irrigation':
         text = t('How wet is the soil near the roots, and when did you last irrigate?','শিকড়ের কাছে মাটি কতটা ভেজা? শেষ কবে সেচ দিয়েছেন?')
     elif topic=='calendar':

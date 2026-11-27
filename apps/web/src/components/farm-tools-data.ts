@@ -14,7 +14,7 @@ export type FarmToolData = {
     source_url:string|null; tasks:{date:string; en:string; bn:string}[];
   };
   alerts:{id:string; kind:'rain'|'scout'; en:string; bn:string; detail?:string; hours?:number; source_url?:string}[];
-  reminders:{id:string; label:string; due_on:string}[];
+  reminders:{id:string; label:string; due_on:string; case_id?:string}[];
   ledger:Line[];
   summary:{expenses_bdt:string; receipts_bdt:string; margin_bdt:string; break_even_bdt_per_kg:string|null};
   storage:Batch[]; sharing_allowed:boolean; shared_case_ids:string[];

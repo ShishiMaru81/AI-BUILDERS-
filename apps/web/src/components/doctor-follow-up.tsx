@@ -12,10 +12,11 @@ type Props = {
   result: DoctorScreening;
   locale: 'en' | 'bn';
   originalFile?: File;
+  originalPreview?: string;
   onUpdate?: (result: DoctorScreening) => void;
 };
 
-export function DoctorFollowUp({result, locale, originalFile, onUpdate}: Props) {
+export function DoctorFollowUp({result, locale, originalFile, originalPreview, onUpdate}: Props) {
   const bn = locale === 'bn';
   const t = (en: string, be: string) => bn ? be : en;
   const cache = useQueryClient();
@@ -128,9 +129,22 @@ export function DoctorFollowUp({result, locale, originalFile, onUpdate}: Props) 
     <details onToggle={e => setOpen(e.currentTarget.open)}>
       <summary>{t('See the second photo and the first assessment', 'দ্বিতীয় ছবি ও প্রথম পরীক্ষার ফল দেখুন')}</summary>
       {open && <div className="stack">
-        {(!id || result.second_photo_available) && thumb && !imageFailed &&
-          <Image unoptimized width={360} height={240} src={thumb} alt={t('Second crop photo', 'ফসলের দ্বিতীয় ছবি')}/>}
-        {(imageFailed || (id && !result.second_photo_available)) && <small>{t('Second photo unavailable.', 'দ্বিতীয় ছবিটি পাওয়া যাচ্ছে না।')}</small>}
+        <div className="doctor-followup-views">
+          <figure>
+            <figcaption>{t('Original view', 'প্রথম ছবি')}</figcaption>
+            {originalPreview
+              ? <Image unoptimized width={360} height={240} src={originalPreview} alt={t('Original crop photo', 'ফসলের প্রথম ছবি')}/>
+              : <small>{t('Original photo unavailable.', 'প্রথম ছবিটি পাওয়া যাচ্ছে না।')}</small>}
+          </figure>
+          <figure>
+            <figcaption>{t('Second view', 'দ্বিতীয় ছবি')}</figcaption>
+            {imageFailed || (id && !result.second_photo_available)
+              ? <small>{t('Second photo unavailable.', 'দ্বিতীয় ছবিটি পাওয়া যাচ্ছে না।')}</small>
+              : thumb
+                ? <Image unoptimized width={360} height={240} src={thumb} alt={t('Second crop photo', 'ফসলের দ্বিতীয় ছবি')}/>
+                : <small role="status">{t('Opening photo…', 'ছবিটি খোলা হচ্ছে…')}</small>}
+          </figure>
+        </div>
         {result.initial_assessment && <p lang={result.initial_screening_locale}>
           <strong>{t('First assessment', 'প্রথম পরীক্ষার ফল')}</strong><br/>{result.initial_assessment.explanation}
         </p>}
@@ -168,6 +182,9 @@ export function DoctorFollowUp({result, locale, originalFile, onUpdate}: Props) 
         {pending && <LoaderCircle size={16} className="spin"/>}{pending ? t('Reviewing…','পরীক্ষা চলছে…') : t('Review both photos','দুইটি ছবি পরীক্ষা করুন')}
       </button>}
     </div>
+    {pending && <div className="doctor-followup-progress" role="status">
+      <span aria-hidden="true"/>{t('Reviewing your two crop photos…', 'ফসলের দুইটি ছবি পরীক্ষা করা হচ্ছে…')}
+    </div>}
     {error && <p role="alert" className="error">{error}</p>}
   </div>;
 }

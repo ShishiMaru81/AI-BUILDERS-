@@ -83,3 +83,14 @@ Unknown diseases, non-leaf images, mixed crops/leaves and other out-of-distribut
 See the feature verification report delivered with this change. Real HTTP smoke inputs were one PlantVillage potato early-blight image, one maize common-rust image, and UCI rice bacterial-leaf-blight DSC_0365.JPG, plus wrong-crop/noise/flat controls. All three leaf photos reached their respective real model; results were possible early blight, common rust and bacterial blight. The wrong-crop result abstained, noise was low-confidence and flat input failed quality. Six handpicked smoke cases cannot estimate accuracy; source overlap with training is unknown.
 
 Photo sources: [PlantVillage author repository](https://github.com/spMohanty/PlantVillage-Dataset) (revision7f7ecc7e1eaca78107e3affe7cb5abd9427e139a; retain CC BY-SA attribution); [Rice Leaf Diseases, Shah/Prajapati/Dabhi, UCI](https://archive.ics.uci.edu/dataset/486/rice+leaf+diseases), DOI10.24432/C5R013, CC BY4.0. Scratch copies and detailed observed results are local test artifacts, not a redistributed benchmark.
+## Follow-up Copilot
+
+Open any AgroDoctor result or a saved case from case history. **Compare photos** offers a second view for compatible vision screenings. Once reviewed, both photos and the preserved first assessment are available in the comparison. Local screening results provide guidance for a new screening. A comparison of camera views cannot establish how the crop changed between visits.
+
+On a saved case, **Check-in** records the farmer's own description of change and a dated note. If the farmer reports worsening, the panel offers a link to contact an adviser. **Reminder** schedules, moves or removes an in-app recheck for the original plot. The reminder appears in Farm tools and links back to the case. **Ask about this screening** opens an editable Farmer Chat question. When sent, it can use the saved findings and recent farmer check-ins.
+
+### Treatment guidance
+
+The Treatment tab uses the AI screening to look up a reviewed crop-and-disease match. Examples from the Bangladesh Department of Agricultural Extension register are shown with their registration numbers for tomato early and late blight and potato late blight. The linked directory and current product label are the places to verify an entry with an agricultural extension officer. [DAE pesticide directory](https://prism.dae.gov.bd/pesticide-list)
+
+Uncertain findings and harvested produce receive field checks or handling guidance. Farmer Chat uses the same curated references for treatment questions. It directs dosage questions to the current product label and extension services, and the app does not transmit a spray rate or a mixing schedule.

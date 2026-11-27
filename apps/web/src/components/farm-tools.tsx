@@ -66,7 +66,11 @@ function Calendar({data, base, locale, t, write, busy}: View) {
           <button className="text-link" disabled={busy} onClick={()=>void write(base+'/alerts/'+alert.id+'/dismiss','POST')}>{t('Dismiss','সরান')}</button>
         </li>)}
         {[...data.reminders].sort((a,b)=>a.due_on.localeCompare(b.due_on)).map(row=><li key={row.id}>
-          <div><strong>{row.label}</strong><small>{day(row.due_on,locale)} · {row.due_on<=today?t('Due','সময় হয়েছে'):t('Upcoming','আসন্ন')}</small></div>
+          <div><strong>{row.label}</strong><small>{day(row.due_on,locale)} · {row.due_on<=today?t('Due','সময় হয়েছে'):t('Upcoming','আসন্ন')}</small>
+            {row.case_id && <Link className="text-link" href={'/' + locale + '/agrodoctor/' + encodeURIComponent(row.case_id)}>
+              {t('Open screening','পরীক্ষার ফল খুলুন')}
+            </Link>}
+          </div>
           <button className="text-link" disabled={busy} onClick={()=>void write('/farm-tools/records/farm_reminder/'+row.id,'DELETE')}>{t(row.due_on<=today?'Complete':'Cancel',row.due_on<=today?'সম্পন্ন':'বাতিল')}</button>
         </li>)}
       </ul>

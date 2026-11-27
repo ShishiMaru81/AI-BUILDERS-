@@ -4,7 +4,7 @@ import type {Page} from '@playwright/test';
 const api = process.env.E2E_API_URL || 'http://127.0.0.1:8300/api/v1';
 const image = {name:'crop.png', mimeType:'image/png', buffer:Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=', 'base64')};
 const first = {
-  crop:'potato', screening_locale:'en', photo_count:1, model:{version:'test-vision'},
+  crop:'potato', screening_locale:'en', photo_count:1, model:{version:'test-vision', model_id:'groq-vision'},
   classification:{abstained:false, top_label:'Possible internal decay'},
   assessment:{subject:'Potato tuber', part:'produce', crop_match:'unknown',
     outcome:'possible_condition', condition:'Possible internal decay', produce_finding:'internal_breakdown',
@@ -54,7 +54,9 @@ test('reported answers, Bangla referral and follow-up survive an unsuccessful pr
   const result=page.getByRole('region',{name:'Screening result'});
   await expect(result.getByRole('heading').first()).toContainText('Possible internal decay');
   await expect(result.getByRole('heading',{name:'What should I do today?'})).toBeVisible();
-  await expect(result.locator('a[href="tel:16123"]')).toBeVisible();
+  const referral = result.getByRole('link',{name:'Call the Agriculture Call Centre · 16123',exact:true});
+  await expect(referral).toBeVisible();
+  await expect(referral).toHaveAttribute('href','tel:16123');
   await expect(result.locator('p[lang=bn]')).toContainText('অনেক');
   await expect(result.locator('p[lang=bn]')).toContainText('আলু');
   await result.getByLabel('Second crop photo',{exact:true}).setInputFiles(image);
@@ -64,6 +66,7 @@ test('reported answers, Bangla referral and follow-up survive an unsuccessful pr
   await result.getByRole('button',{name:'Review both photos'}).click();
   await expect(result).toContainText(second.assessment.explanation);
   await result.getByText('See the second photo and the first assessment').click();
+  await expect(result.getByAltText('Original crop photo')).toBeVisible();
   await expect(result.getByAltText('Second crop photo')).toBeVisible();
   await expect(result).toContainText(first.assessment.explanation);
   expect(pairs).toBe(2);
@@ -91,6 +94,7 @@ test('a second photo updates a reopened saved case at its original URL', async (
   await page.reload();
   await expect(page.getByText('Both photos reviewed together')).toBeVisible();
   await page.getByText('See the second photo and the first assessment').click();
+  await expect(page.getByAltText('Original crop photo')).toBeVisible();
   await expect(page.getByAltText('Second crop photo')).toBeVisible();
   await expect(page.getByText(first.assessment.explanation)).toBeVisible();
   expect(new URL(page.url()).pathname).toBe('/en/agrodoctor/'+id);

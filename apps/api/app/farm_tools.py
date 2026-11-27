@@ -129,6 +129,34 @@ def _display(record):
     return {'id': record.id, **record.payload}
 
 
+def _case_reminder_row(db, user, case_id):
+    return db.scalar(select(Record).where(
+        Record.owner_id == user.id, Record.source_record_id == case_id, Record.kind == 'farm_reminder',
+    ))
+
+
+def case_reminder(db, user, case_id):
+    row = _case_reminder_row(db, user, case_id)
+    return _display(row) if row else None
+
+
+def save_case_reminder(db, user, case, due_on, locale):
+    if due_on < _today():
+        raise HTTPException(422, 'Choose today or a future date in Bangladesh time')
+    if not case.plot_id:
+        raise HTTPException(409, 'A recheck reminder needs a saved case with a plot')
+    plot = _owned(db, user, case.plot_id, 'plot')
+    label = 'AgroDoctor follow-up' if locale == 'en' else 'অ্যাগ্রোডক্টরে আবার দেখুন'
+    payload = {'case_id': case.id, 'due_on': due_on.isoformat(), 'label': label}
+    row = _case_reminder_row(db, user, case.id)
+    if row is None:
+        row = _insert(db, user, plot, 'farm_reminder', payload, maximum=100, source=case.id)
+    elif row.payload != payload:
+        row.payload = payload
+        row.updated_at = now()
+    return _display(row)
+
+
 def _valid_date(value, today):
     if value > today:
         raise HTTPException(422, 'Enter today’s date or an earlier date')

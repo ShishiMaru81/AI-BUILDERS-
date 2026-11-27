@@ -89,7 +89,16 @@ export type FarmerContext = {
   extent: 'one' | 'several' | 'many' | 'unknown';
 };
 
+export type DoctorTreatment = {
+  status: 'registry_reference' | 'field_management' | 'nonchemical' | 'storage' | 'monitor' | 'uncertain';
+  summary: string;
+  steps: string[];
+  products: {name: string; ingredient: string; registration: string}[];
+  sources: {label: string; url: string}[];
+};
+
 export type DoctorScreening = {
+  treatment_guidance?: Record<'en' | 'bn', DoctorTreatment>;
   id?: string;
   farmer_context?: FarmerContext;
   screening_locale?: 'bn' | 'en';
@@ -138,12 +147,18 @@ export type DoctorScreening = {
   meta: Meta;
 };
 
+export type DoctorChange = 'improving' | 'unchanged' | 'worsening' | 'unsure';
+export type DoctorCheckIn = {id: string; change: DoctorChange; note: string; created_at: string};
+export type DoctorReminder = {id: string; case_id: string; due_on: string; label: string};
+
 export type Case = DoctorScreening & {
   id: string;
   created_at: string;
   updated_at?: string | null;
   symptoms: string;
   feedback?: Feedback[];
+  check_ins?: DoctorCheckIn[];
+  follow_up_reminder?: DoctorReminder | null;
   image_available?: boolean;
 };
 

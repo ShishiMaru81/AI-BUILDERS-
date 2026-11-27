@@ -9,6 +9,7 @@ AgroSphere is a bilingual farm workspace for Bangladesh. Farmers can screen crop
 | Feature | What it does |
 | --- | --- |
 | **AgroDoctor AI** | Screen leaf and produce photos, review visible signs and uncertainty, save a case and compare a second view. [Model setup and limits](docs/agrodoctor-multicrop.md) |
+| **AgroDoctor Follow-up Copilot** | Compare photos, record crop changes, set plot reminders and review treatment references for a supported screening. [Follow-up workflow](#follow-up-with-agrodoctor) |
 | **FloodCrop AI** | Check rainfall for a farm with consented coordinates, review drainage or waterlogging preparedness, and follow official flood information links. [Set a farm location](docs/area-selection.md) |
 | **KrishiMarket and AgroRescue** | Compare buyer offers after costs, browse fixed-price produce and optional auctions, and save harvest selling scenarios. Checkout records are for demo pickup or cash on delivery. [Marketplace](docs/marketplace.md) · [Harvest planner](docs/agrorescue.md) |
 | **Farmer Chat** | Ask questions in English, Bangla or common Banglish. The chat retrieves 34 bilingual guidance passages, can answer through Groq, and can show relevant published guidance during provider faults. Voice input depends on browser support. [Retrieval and sources](docs/farmer-chat-rag.md) |
@@ -24,6 +25,18 @@ AgroSphere is a bilingual farm workspace for Bangladesh. Farmers can screen crop
 **Admin console** showing account counts, marketplace operations and farm activity in an isolated demo.
 
 ![Admin overview with a sidebar, account counts, open reports and farm activity](docs/screenshots/admin-console.png)
+
+## Follow-up with AgroDoctor
+
+1. Open **AgroDoctor AI**, select the crop and upload a photo. Save the screening to a plot to keep a dated record.
+2. Open **Follow-up Copilot** in the result or reopen the case from history. Use **Compare photos** to review a second view on compatible vision screenings, **Check-in** to log changes and **Reminder** to schedule the next inspection in Farm tools.
+3. Open **Treatment** to see field checks and any reviewed product references. Choose **Ask about treatment** to open Farmer Chat with the saved case in context.
+
+The Treatment tab shows examples from the Bangladesh Department of Agricultural Extension register for supported tomato early blight, tomato late blight and potato late blight matches. Uncertain screenings get scouting steps, and harvested produce gets handling guidance. Confirm the photo finding with an agricultural extension officer and check the current product label for approved uses, dosage and the waiting period before harvest. [Treatment guidance](docs/agrodoctor-multicrop.md#treatment-guidance) · [DAE pesticide directory](https://prism.dae.gov.bd/pesticide-list)
+
+The screenshot shows the Treatment tab on a demo potato late blight case.
+
+![AgroDoctor Follow-up Copilot showing a DAE registration reference, field checks, and adviser and Farmer Chat actions](docs/screenshots/agrodoctor-copilot.png)
 
 ## Run locally
 
@@ -121,7 +134,7 @@ Compose starts PostgreSQL, the FastAPI service, Next.js and the marketplace life
 npm run typecheck
 npm test
 npm run build
-npm run test:e2e -- admin-console.spec.ts farmer-chat.spec.ts
+npm run test:e2e -- admin-console.spec.ts doctor-copilot.spec.ts doctor-farmer.spec.ts farmer-chat.spec.ts
 ```
 
 Start both services before Playwright checks. Windows defaults to Microsoft Edge. To use installed Playwright Chromium, set `PLAYWRIGHT_CHANNEL=chromium`. CI can use the included workflow template. [CI template](docs/ci-workflow.yml) · [Architecture](docs/architecture.md) · [Current verification and limits](docs/status.md) · [Read-only MCP tools](docs/agrosphere-mcp.md)

@@ -1,6 +1,7 @@
 """Typed Pydantic request/response contracts for ZYNTRIX AgroSphere AI (B14, B16)."""
 from __future__ import annotations
 
+from datetime import date
 from decimal import Decimal
 from typing import Any, Literal
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, field_validator, model_validator
@@ -268,6 +269,19 @@ class FeedbackInput(BaseModel):
     model_config = ConfigDict(extra='forbid')
     note: str = Field(min_length=1, max_length=2000)
     request_review: bool = False
+
+
+class DoctorCheckInInput(BaseModel):
+    model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)
+    request_id: str = Field(min_length=8, max_length=128)
+    change: Literal['improving', 'unchanged', 'worsening', 'unsure']
+    note: str = Field(default='', max_length=2000)
+
+
+class DoctorReminderInput(BaseModel):
+    model_config = ConfigDict(extra='forbid')
+    due_on: date
+    locale: Literal['en', 'bn'] = 'en'
 
 
 class FeedbackResponse(BaseModel):
