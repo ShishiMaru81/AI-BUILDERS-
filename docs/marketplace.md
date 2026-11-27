@@ -31,7 +31,7 @@ The current demo uses this chat's isolated work/multicrop-demo.db and work/multi
 
 ## Roles and authentication
 
-Public signup requires a verified phone or email and accepts only farmer/customer. Legacy password signup is off by default. Passwords use salted scrypt; session tokens are random and stored as SHA256 digests. Every protected marketplace mutation checks current database role/activity and ownership. Suspension invalidates sessions. The last active admin cannot suspend or erase itself. Login/signup have bounded per-process rate limiting; shared proxy/edge limiting is required for a distributed production deployment.
+Public signup with a phone number or email accepts only farmer and customer roles. The password signup form does not require an OTP. OTP verification uses separate endpoints and provider configuration. Legacy password registration is off by default. Passwords use salted scrypt and random session tokens are stored as SHA-256 digests. Protected marketplace changes check the current account role, activity and ownership. Suspension invalidates sessions. The server prevents suspension or removal of the last active admin. Login and signup have per-process rate limits.
 
 Existing demo accounts retain farmer access. New regular accounts do not inherit another user's farms, orders or addresses. Role-sensitive queries are keyed by account identity; session initialization preserves public catalog loading, and stale identity responses are discarded.
 
@@ -41,7 +41,9 @@ Admin accounts require local operator provisioning, from apps/api:
 ..\..\.venv\Scripts\python.exe -m app.market_admin create-admin --email YOUR_EMAIL --name Operator
 ```
 
-The CLI prompts for a password twice. Automation may set KRISHIMARKET_ADMIN_PASSWORD in the process environment; no default password or public admin registration exists. Sign in with the provisioned credentials and open Administration. The QA admin used for verification has random scratch-only credentials and is not a shipped default account.
+The CLI connects to the configured `DATABASE_URL` and prompts for the password twice. In a local setup, run it with the same database settings as the API you intend to administer. Automation can supply the password with the private `KRISHIMARKET_ADMIN_PASSWORD` environment variable. Each administrator needs a distinct email that has never been used for an account in that database.
+
+Use **Admin sign in** on the account access page, or open `/en/admin` or `/bn/admin`. The console includes searchable administration sections for users, seller verification, listings, orders, auctions, reports, policies, and audit history. Farm activity is shown as platform-level counts, including demo records. System status reports the configured data mode and model file availability. Signup identity documents, farm photos, and chat text remain under existing ownership controls.
 
 ## Buying, stock and quantities
 

@@ -1,138 +1,131 @@
 # ZYNTRIX AgroSphere AI
 
-A software-first agricultural workspace: AgroDoctor crop-photo screening, FloodCrop rainfall preparedness, KrishiMarket net selling comparisons, shared farms, actions and future sensor ingestion.
+AgroSphere is a bilingual farm workspace for Bangladesh. Farmers can screen crop photos, prepare for heavy rain, compare selling options and manage their farm records in English or Bangla.
 
-Open **Farm tools** as a farmer for the crop calendar, in-app alerts and reminders, plot cash ledger, storage batches, community map and encrypted offline notebook. **Farmer Chat** accepts voice drafts on supported browsers and retrieves [agricultural guidance with source links](docs/farmer-chat-rag.md). See the [farm tools plan and release scope](docs/farm-tools-plan.md).
+![AgroSphere demo dashboard with a Gazipur farm, crop screening and marketplace shortcuts](docs/screenshots/farm-overview.png)
 
-Connect a local MCP client to the [AgroSphere read-only tools](docs/agrosphere-mcp.md) for plot briefs, district prices and storage summaries.
+## What you can do
 
-For a public website, see [Netlify + free backend deployment](docs/netlify-deployment.md). The root `netlify.toml` configures the frontend and `render.yaml` prepares the separate free Python/PostgreSQL demo backend. Cloud deployment requires account authorization and the real HTTPS backend URL; localhost Docker URLs cannot serve Netlify visitors.
+| Feature | What it does |
+| --- | --- |
+| **AgroDoctor AI** | Screen leaf and produce photos, review visible signs and uncertainty, save a case and compare a second view. [Model setup and limits](docs/agrodoctor-multicrop.md) |
+| **FloodCrop AI** | Check rainfall for a farm with consented coordinates, review drainage or waterlogging preparedness, and follow official flood information links. [Set a farm location](docs/area-selection.md) |
+| **KrishiMarket and AgroRescue** | Compare buyer offers after costs, browse fixed-price produce and optional auctions, and save harvest selling scenarios. Checkout records are for demo pickup or cash on delivery. [Marketplace](docs/marketplace.md) · [Harvest planner](docs/agrorescue.md) |
+| **Farmer Chat** | Ask questions in English, Bangla or common Banglish. The chat retrieves 34 bilingual guidance passages, can answer through Groq, and can show relevant published guidance during provider faults. Voice input depends on browser support. [Retrieval and sources](docs/farmer-chat-rag.md) |
+| **Farm tools** | Review crop calendars, reminders, expenses, storage batches and community crop reports. The offline notebook supports selected saved records. [Farm tools](docs/farm-tools-plan.md) |
+| **Admin console** | Manage account status, seller verification, listings, orders, auctions, reports and marketplace policies. Review the audit trail, aggregate farm activity and model availability. [Admin provisioning](docs/marketplace.md#roles-and-authentication) |
 
-On Vercel, import the repository with `apps/web` as the Root Directory and the Next.js preset. Set `NEXT_PUBLIC_DEPLOYMENT_TIER=frontend_preview` to publish the website preview before the API is available. For an API-backed deployment, remove that setting, set `NEXT_PUBLIC_API_URL` to the public HTTPS API URL ending in `/api/v1`, add the Vercel origin to the API's `CORS_ORIGINS`, and redeploy.
+## Screenshots
 
-For the public demo, import `apps/api` as a separate FastAPI project. Set `HOSTING_TIER=vercel_demo`, `DATA_MODE=DEMO`, and `CORS_ORIGINS` to the frontend's exact HTTPS origin. Connect a separate Postgres database to the API project using `DATABASE_URL` or `POSTGRES_URL`. After verifying `/api/v1/health` and `/api/v1/auth/options`, set the frontend's `NEXT_PUBLIC_DEPLOYMENT_TIER=vercel_demo` and `NEXT_PUBLIC_API_URL`, then redeploy the frontend. This mode creates isolated sample farms without identity verification. Uploaded photos use temporary storage. The default cloud build excludes local PyTorch models, so hosted vision and generated chat answers require a privately configured Groq service. Reviewed chat guidance remains available without Groq.
+**Farmer Chat** showing a rice-blast scouting reference from the Bangladesh Rice Research Institute.
 
-To offer password sign-up and sign-in alongside demo access, set `ENABLE_HOSTED_ACCOUNTS=1` and store a stable Fernet `SIGNUP_DATA_KEY` as a private environment variable on the production API project. Redeploy the API and confirm that `/api/v1/auth/options` reports `signup: true`. Account details and signup photos are encrypted in PostgreSQL. Email and SMS verification codes remain disabled in this hosting mode.
+![Farmer Chat panel with rice scouting guidance and a BRRI source link](docs/screenshots/farmer-chat.png)
 
-## KrishiMarket marketplace
+**Admin console** showing account counts, marketplace operations and farm activity in an isolated demo.
 
-Direct fixed-price shopping with optional MOQ, optional auction lots, nearby-first 20 km discovery and nationwide eligible fulfillment is implemented in the existing app. Farmer/customer signup and operator-provisioned admin roles are enforced server-side. Checkout is a clearly labelled prototype with unpaid cash-on-delivery/pickup records; no online payments are processed.
+![Admin overview with a sidebar, account counts, open reports and farm activity](docs/screenshots/admin-console.png)
 
-See [marketplace setup, roles, inventory rules and verification](docs/marketplace.md). Current local build: [English](http://127.0.0.1:3300/en/marketplace) / [Bangla](http://127.0.0.1:3300/bn/marketplace). Run additive Alembic migrations and the marketplace lifecycle worker for auction/order expiry; Compose includes the worker and preserves existing data/media volumes.
+## Run locally
 
-Marketplace listings now have matching, locally bundled illustrative photos for 20 crops when seller photos are absent or unusable. Normal seller photos take priority. [Photo sources and licenses](docs/crop-images.md) are available through the marketplace's photo credits link.
-
-## AgroRescue harvest planner
-
-Open [English](http://127.0.0.1:3300/en/agrorescue) or [Bangla](http://127.0.0.1:3300/bn/agrorescue). Compare proceeds after declared costs, answer missing-information questions, review saved weather/screening context, and save private decision snapshots. Holding scenarios use explicit farmer assumptions. This is an explainable symbolic planner, with no trained future-price or spoilage prediction and no automatic selling. See [usage, API and limits](docs/agrorescue.md).
-
-For isolated browser QA, set `AGROSPHERE_NEXT_DIST_DIR=.next-rescue-e2e` and the matching `NEXT_PUBLIC_API_URL` on a separate web process/port. Point the test API at a separate database/storage and set `PLAYWRIGHT_BASE_URL`, `E2E_BASE_URL`, `AGROSPHERE_API_URL` and `E2E_API_URL` accordingly. The default build directory remains `.next`.
-
-## Multi-crop screening
-
-Set `GROQ_API_KEY` in the private root `.env` or API service environment, then restart the API. AgroDoctor sends a metadata-stripped photo to Groq's vision model for leaf and produce screening. It shows visible signs, possible causes, limitations and follow-up checks in the selected language. **Identify from photo** accepts crops outside the plot catalog as an unsaved preview. The model ID defaults to `qwen/qwen3.8-27b` and can be set with `GROQ_VISION_MODEL`. Provider or quota failures are shown in the form. Produce results describe visible damage such as surface mold or internal breakdown. A negative leaf assessment gets an independent check when a matching local leaf model with a healthy reference class is available. A disagreement or missing corroboration yields an uncertain result.
-
-In AgroDoctor, select **Leaf** or **Fruit, vegetable or tuber** and answer the two observation questions. **Not sure** is available for each. The **আজ কী করব?** card adapts its scouting action to the photo and the reported extent, timing or storage context. **শুনুন** reads the card aloud with a local voice or bundled recordings. A second view can be submitted directly from a vision result or an existing saved vision case. Both images are analyzed together. Saved cases retain both views, the farmer's answers and the first assessment. Where further help is appropriate, a Bangla summary and a user-initiated **16123** call link are shown.
-
-Without a Groq key, two pinned local research models support leaf screening for 12 crop groups: apple, cherry, maize, grape, orange, peach, bell pepper, potato, squash, strawberry, tomato and rice. Original three-class tomato artifacts and historical cases are preserved separately. See [multi-crop setup, sources and limitations](docs/agrodoctor-multicrop.md).
-
-Install the active bundles from the repository root before running native inference or local Compose:
+Use Python 3.12 or 3.13 and Node.js 22 or 24 with npm. Docker builds use Python 3.12 and Node.js 24. The native example below uses PowerShell and SQLite.
 
 ```powershell
-.\.venv\Scripts\python -m pip install -r apps/api/requirements.txt
-.\.venv\Scripts\python -m pip install -r apps/api/requirements-ml.txt --index-url https://download.pytorch.org/whl/cpu
-.\.venv\Scripts\python -m pip install -r ml/doctor/requirements-export.txt
-.\.venv\Scripts\python scripts/install_doctor_models.py
-```
-
-Weights are downloaded from pinned SafeTensor revisions, verified and exported locally; no remote model code runs. Missing models are shown as unavailable. No independent multi-crop accuracy or field validation is claimed. The old `v0.1.0` tomato artifact alone does not enable multi-crop inference.
-
-## Run locally (Windows, without Docker)
-
-Sign up and sign in with a phone number or email and a password. Store a stable Fernet encryption key as `SIGNUP_DATA_KEY` in the private root `.env` for signup details and photos. Generate it once with `python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"` after installing the API dependencies. The API, migrations and worker load private settings from the root `.env`; service environment variables take precedence.
-
-From this directory, create a Python environment and install dependencies:
-
-```powershell
+git clone https://github.com/ShishiMaru81/AI-BUILDERS-.git
+cd AI-BUILDERS-
+if (-not (Test-Path .env)) { Copy-Item .env.example .env }
 python -m venv .venv
-.\.venv\Scripts\python -m pip install -r apps/api/requirements.txt
+.\.venv\Scripts\python.exe -m pip install -r apps/api/requirements.txt
 cd apps/api
-..\..\.venv\Scripts\python -m alembic upgrade head
-..\..\.venv\Scripts\python -m uvicorn app.main:app --host 127.0.0.1 --port 8000
+..\..\.venv\Scripts\python.exe -m alembic upgrade head
+..\..\.venv\Scripts\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8000
 ```
 
-In another terminal:
+In a second terminal, start from the repository root.
 
 ```powershell
 cd apps/web
 npm ci
+$env:NEXT_PUBLIC_API_URL = 'http://127.0.0.1:8000/api/v1'
 npm run dev
 ```
 
-Open http://127.0.0.1:3000/en or /bn and choose **Explore a demo farm**. The initial session is private and expires in seven days. This is local demo authentication, not a production identity provider.
+Open the English or Bangla workspace and select **Explore a demo farm**. The API health endpoint confirms that the server is running. The readiness endpoint also checks the database, media storage and installed model bundles. [English workspace](http://127.0.0.1:3000/en) · [Bangla workspace](http://127.0.0.1:3000/bn) · [API reference](http://127.0.0.1:8000/docs) · [API health](http://127.0.0.1:8000/api/v1/health)
 
-To choose your area, open **FloodCrop AI**, search a place or click/drag the map pin, then consent and press **Save area & use live weather**. The same picker is available when creating a farm. Manual coordinates work when search is unavailable. See [area selection](docs/area-selection.md).
+### Configure optional services
 
-The current checkout has its own `.venv` in this repository. Use `../../.venv/Scripts/python.exe` from `apps/api`. The implementation test/demo session uses API 8300 and web 3300 to keep older services separate.
+| Setting | When you need it |
+| --- | --- |
+| `SIGNUP_DATA_KEY` | Password sign-up with encrypted identity details and photos. Generate a Fernet key once with `python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"` in the API environment. Keep it stable and private. |
+| `GROQ_API_KEY` | Hosted vision screening and generated Farmer Chat answers. Keep it in the backend environment. The bundled guidance still works when the API is reachable and Groq is unavailable. |
+| `DATABASE_URL` | Use your own PostgreSQL database or a separate SQLite database. Run Alembic against the selected database before starting the API. |
+| `CORS_ORIGINS` | Allow the exact web origin when changing host names or ports. Use comma-separated origins. |
+| `NEXT_PUBLIC_API_URL` | Set the web environment to the backend address ending in `/api/v1` before starting or building Next.js. |
 
-## PostgreSQL / Docker
+Mail and SMS provider setup is separate from the password and demo flows. All credentials belong in private environment settings. [Backend environment template](.env.example) · [Email configuration](docs/email-setup.md)
 
-Start Docker Desktop first, then run `docker compose up -d --build` from this repository. It starts PostgreSQL, migrations, FastAPI with CPU model inference, and the Next.js standalone server. This checkout uses the Compose project name **agrosphere-congress**, separate from the older `agrosphere-ai` project on this PC.
+### Provision an administrator
 
-- Website: http://127.0.0.1:3100
-- API / interactive reference: http://127.0.0.1:8100/docs
-- PostgreSQL (local tools): 127.0.0.1:55432
-
-`WEB_PORT`, `API_PORT` and `DB_PORT` can override these defaults. Rebuild the web image after changing API_PORT because its browser-facing API address is set at build time. CORS includes the chosen local website origins. Ports bind only to localhost. Demo credentials are local development values; replace them for deployment. Images and PostgreSQL use separate persistent named volumes. Existing local SQLite records are not automatically migrated into the fresh PostgreSQL workspace.
+Run this from `apps/api` with the same database settings as the API. Use a fresh email for the admin account. The command prompts for the password in the terminal.
 
 ```powershell
+..\..\.venv\Scripts\python.exe -m app.market_admin create-admin --email admin@example.com --name Operator
+```
+
+On the sign-up page, select **Admin sign in**. The API verifies the administrator role before serving any console data. Regular sign-up creates only farmer or customer accounts. The console summarizes farm activity as counts, with private photos, conversations and identity documents protected by the existing account boundaries. [Local admin sign-in](http://127.0.0.1:3000/en/admin) · [Account roles and operations](docs/marketplace.md#roles-and-authentication)
+
+### Install local AgroDoctor models
+
+Run these commands from the project root using the virtual environment created above. The installer downloads pinned artifacts and verifies their checksums.
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install -r apps/api/requirements-ml.txt --index-url https://download.pytorch.org/whl/cpu
+.\.venv\Scripts\python.exe -m pip install -r ml/doctor/requirements-export.txt
+.\.venv\Scripts\python.exe scripts/install_doctor_models.py
+```
+
+Restart the API after installation. The built-in bundles cover supported leaves. Groq supports leaf and produce screening, and locally trained tomato/potato leaf and produce models can be enabled as research previews through `AGRODOCTOR_RESEARCH_MODEL_DIR` and `AGRODOCTOR_RESEARCH_PRODUCE_MODEL_DIR`. Keep downloaded datasets, generated bundles, training checkpoints and private field photos outside the tracked project files. [Model catalog and configuration](docs/agrodoctor-multicrop.md) · [Kaggle workflow](docs/agrodoctor-kaggle-quickstart.md) · [Leaf and produce research](docs/agrodoctor-leaf-and-produce-followup.md)
+
+### Use Docker and PostgreSQL
+
+Install the local bundles above first so the Compose API readiness check can load the configured models. From the repository root, run:
+
+```powershell
+docker compose up -d --build
 docker compose ps
-docker compose logs --tail 50 api
-docker compose stop
-docker compose start
 ```
 
-Stopping containers preserves records. Avoid `down -v` unless you intend to destroy the Docker database and image storage. The API and web containers run as non-root users. The first build downloads Linux dependencies and can take several minutes.
+Compose starts PostgreSQL, the FastAPI service, Next.js and the marketplace lifecycle worker. The stack keeps PostgreSQL and image data in named volumes. Defaults are web port `3100`, API port `8100` and PostgreSQL port `55432`. Use `WEB_PORT`, `API_PORT` and `DB_PORT` for local overrides. Existing SQLite data requires a separate migration. [Docker website](http://127.0.0.1:3100/en) · [Docker API reference](http://127.0.0.1:8100/docs)
 
-To repeat integration checks with the parent-directory environment used in this workspace:
+## Hosting
 
-```powershell
-..\.venv\Scripts\python scripts/docker_verify.py
-$env:PLAYWRIGHT_BASE_URL='http://127.0.0.1:3100'
-$env:AGROSPHERE_API_URL='http://127.0.0.1:8100/api/v1'
-$env:E2E_API_URL=$env:AGROSPHERE_API_URL
-cd apps/web
-npm run test:e2e
-```
+- **Vercel preview.** Import `apps/web` with the Next.js preset and set `NEXT_PUBLIC_DEPLOYMENT_TIER=frontend_preview` for a website preview while the API is unavailable.
+- **Vercel app with API.** Import `apps/api` as a separate FastAPI project, connect PostgreSQL, set `HOSTING_TIER=vercel_demo` and `DATA_MODE=DEMO`, and allow the frontend's exact origin in `CORS_ORIGINS`. On the web project set `NEXT_PUBLIC_DEPLOYMENT_TIER=vercel_demo` and `NEXT_PUBLIC_API_URL` to the public API address ending in `/api/v1`. The hosted build uses temporary photo storage and relies on Groq for hosted inference. Enable hosted password signup through `ENABLE_HOSTED_ACCOUNTS=1` and a persistent private `SIGNUP_DATA_KEY` when that flow is needed.
+- **Netlify.** The root `netlify.toml` configures the frontend. Use a separate public HTTPS API and database for accounts and farm tools. [Netlify backend setup](docs/netlify-deployment.md)
 
-`docker_verify.py` creates a disposable test workspace, tests actual model inference and all modules, restarts only this stack's API, verifies persisted records and device deduplication, then removes the disposable workspace.
+## Repository and verification
 
-For standalone PostgreSQL, set `DATABASE_URL=postgresql+psycopg://USER:PASSWORD@localhost:5432/agrosphere`, then run migrations and the API. The Python API, migrations and worker load the root `.env`; `.env.example` remains a reference file. Next.js reads its own frontend environment settings separately.
-
-## Models and data
-
-See [multi-crop setup](docs/agrodoctor-multicrop.md), [model cards](docs/model_card.md) and [original tomato training instructions](ml/doctor/README.md). The local leaf models have 38 PlantVillage outputs and 17 rice outputs; only disease-enabled crops are selectable. Selecting a crop does not renormalize the model scores. Cross-crop global predictions and scores below 0.85 abstain. Closed-set scores remain uncalibrated and unknown/non-leaf inputs can still score highly.
-
-Runtime uses installed CPU torch/torchvision and checks bundle metadata, checksums and outputs. The 0.958 original tomato holdout accuracy belongs only to the retired three-class artifact, never to these upstream models. Rainfall thresholds remain illustrative; initial market prices are synthetic; official FFWC/DAM links are references.
-
-## Quality gates
+| Path | Contents |
+| --- | --- |
+| `apps/web` | Next.js and React interface, unit tests and Playwright workflows |
+| `apps/api` | FastAPI routes, SQLAlchemy models, migrations and API tests |
+| `ml/doctor` | AgroDoctor dataset preparation, training, notebooks and evaluation |
+| `data/agrodoctor` | Attribution, source audits and field intake templates |
+| `docs` | Implementation notes, operations and evaluation evidence |
 
 ```powershell
-# API directory, using your chosen virtual environment
-python -m pytest -q
-# Web directory
+# Repository root
+.\.venv\Scripts\python.exe -m pytest -q ml/doctor/tests ml/doctor/test_prepare_kaggle_dataset.py
+# apps/api
+..\..\.venv\Scripts\python.exe -m pytest -q
+# apps/web
 npm run typecheck
-npm run lint
-npm run test
+npm test
 npm run build
-# Run API and frontend first; installed Microsoft Edge is used on Windows
-npm run test:e2e
+npm run test:e2e -- admin-console.spec.ts farmer-chat.spec.ts
 ```
 
-For Linux CI, `PLAYWRIGHT_CHANNEL=chromium` uses Playwright's installed Chromium instead of Edge. Production uses `npm run build` and the standalone server; the provided Dockerfile packages static assets alongside it.
+Start both services before Playwright checks. Windows defaults to Microsoft Edge. To use installed Playwright Chromium, set `PLAYWRIGHT_CHANNEL=chromium`. CI can use the included workflow template. [CI template](docs/ci-workflow.yml) · [Architecture](docs/architecture.md) · [Current verification and limits](docs/status.md) · [Read-only MCP tools](docs/agrosphere-mcp.md)
 
-API reference: http://127.0.0.1:8000/docs. All personal routes require a Bearer session token. Device ingestion uses a separate `X-Device-Key` header. See [hardware contract](docs/hardware_integration.md), [architecture](docs/architecture.md), [evidence](docs/evidence.md) and [status](docs/status.md).
+## How to interpret the results
 
-## GitHub Actions template
-
-The complete CI definition is supplied as [docs/ci-workflow.yml](docs/ci-workflow.yml). The current GitHub login can upload repositories and releases but lacks the additional `workflow` permission required to create active Actions files. No account permissions were changed. To enable CI later, use an authorized GitHub login, copy the template to `.github/workflows/ci.yml`, and explicitly add that file (it is currently ignored to keep uploads compatible with this login). Automated GitHub Actions execution is not claimed; the documented local and Docker checks have been run.
+AgroDoctor results are screening suggestions. The research evaluations use held-out photos and still need independent, expert-reviewed validation on Bangladesh farms. FloodCrop shows rainfall preparedness rather than plot inundation probability. Marketplace pages label synthetic records, recorded quotes and user-entered selling assumptions. [Evaluation evidence](docs/evidence.md) · [Local model cards](docs/model_card.md) · [Photo credits and licenses](docs/crop-images.md)

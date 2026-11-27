@@ -1,3 +1,41 @@
+## Admin console · 27 November 2026
+
+The signup and sign-in page opens a separate administrator login. Authenticated administrators can review users, seller verification, marketplace listings, reports, orders, auctions, audit events and policies. The dashboard displays aggregate farm activity and the configured state of AgroDoctor and Farmer Chat. Private farm and signup content retains its existing access controls, and activity counts include demo records. [Admin account setup](marketplace.md#roles-and-authentication)
+
+## Farmer Chat scope and Bangladesh guidance · 27 November 2026
+
+Farmer Chat handles greetings and clear off-topic requests locally in English and Bangla, and keeps farming context across those turns. The guidance library grew from 12 to 34 bilingual passages on crop scouting, crop seasons, storage, soil testing, irrigation, coastal salinity and haor flooding. Live weather answers require a fresh forecast for the selected plot. Flood and cyclone requests link to the official warning services when a local warning has not been verified.
+
+Checked source matching and model fallback with sample questions. A live Groq session returned publisher-linked advice for Aman rice leaf blight, maize fall armyworm and Boro planning in the Sunamganj haor. Field validation and crop-specific advice beyond the available evidence still require local extension review. [Farmer Chat retrieval and verification](farmer-chat-rag.md)
+
+## AgroDoctor leaf adaptation and produce preview · 27 November 2026
+
+The leaf head now uses development photos from the Pakistan PLD and one TOM2024 region as well as the previous cohorts. On the 330-photo PLD author test fold it returned 306 correct and 11 incorrect named decisions, compared with 109 correct and 101 incorrect for v2. On the 85-photo TOM2024 reserved region it returned 19 correct and zero incorrect named results. All 44 tomato late blight examples stayed uncertain under the development cutoffs. The separate produce head matched 500 of 613 known held-out labels and abstained on all 76 leaf challenge photos.
+
+Both models are available in the local research preview. Tomato and potato produce uploads were verified in the browser, and API checks exercised both models and out-of-scope inputs without saving cases. Region and archive folds provide benchmark evidence. Independent Bangladesh farm validation still requires reviewed labels and traceable farm groups. [Methods and results](agrodoctor-leaf-and-produce-followup.md)
+
+## AgroDoctor public-data training and research preview · 27 November 2026
+
+The private Kaggle Tesla T4 run finished 10 epochs and selected epoch 8. The export was verified and loaded into AgroDoctor's local research preview for tomato and potato leaves. Browser uploads returned possible early blight for a reserved tomato photo and possible late blight for a controlled potato photo. The preview abstained on the same potato photo when tomato was selected and saved no observations.
+
+The candidate matched 427 of 452 controlled test labels and 245 of 851 reserved public tomato labels after abstention, compared with 423 and 79 for v1. Late blight agreement on the reserved tomato set declined from 44 to 16 of 76, and the earlier exploratory potato subset still had no correct named decisions. The model stays in research preview. [Training and evaluation](agrodoctor-public-trial.md)
+
+## AgroDoctor v2 field data preparation · 27 November 2026
+
+The intake workflow uses reviewed tomato and potato leaf close-ups with coded farm and plant IDs. It checks farm assignments, permissions, label provenance, corrupted images, duplicates and potential near-duplicates, and exports metadata-stripped images. The Kaggle development bundle contains training and validation only. Test farms stay offline. A synthetic rehearsal exercised export, packaging, the notebook's validation cell, one CPU epoch and separate evaluation.
+
+Public archives remain research leads. Two Bangladesh tomato archives lacked farm-to-file and reviewer mappings, and direct checks confirmed identical potato photos under different labels in the Tanzania and PLDD-UP sources. The TOM2024 catalog join identifies 428 originals for a possible healthy-or-late-blight tomato study across three Burkina Faso regions. Reviewed photos with stable IDs from separate farms are still needed for the next Kaggle training run and Bangladesh field evaluation. [Capture guide](agrodoctor-field-capture-v2.md) · [Source audit and data request](../data/agrodoctor/field-v2-source-audit.md)
+
+## AgroDoctor external photo evaluation · 27 November 2026
+
+The Kaggle GPU run completed all 12 epochs and selected epoch 9. CPU replay reproduced the 95.6% raw PlantVillage test accuracy across 452 controlled photos. On a separate exploratory set from Bangladesh archives, the candidate matched 0 of 446 deposited labels before and after the saved uncertainty policy. The existing local PlantVillage classifier also matched 0 of 446 after its decision policy. The field archives have source-dependent image processing, uncertain plant grouping and no independent per-image label review. The checkpoint remains a research baseline. [Evaluation and evidence](agrodoctor-field-evaluation-2026-11-27.md)
+
+## AgroDoctor Kaggle training kit · 26 November 2026
+
+The private Kaggle input for the tomato and potato leaf baseline contains 3,733 original PlantVillage photos across nine labels and 2,286 official leaf groups. The original test fold was preserved, validation was drawn from the training fold, and 27 near-duplicate candidates were excluded. The trainer records per-class results, uncertainty thresholds, and reproducible CPU inference artifacts. Dataset preparation and a synthetic training and export workflow passed locally. Real training begins with the user's Kaggle run.
+
+The held-out PlantVillage test measures controlled-image performance. Potato healthy has six validation leaves and eight test leaves. The candidate Bangladesh archives are documented separately and were excluded from the training bundle. Potato leafroll, produce screening, and independent field validation remain later work. [Kaggle quickstart](agrodoctor-kaggle-quickstart.md)
+
 ## Public demo on Vercel · 25 November 2026
 
 The hosted demo configuration requires PostgreSQL and creates private sample farms. Production can enable password registration and sign-in alongside the sample farm flow with a private account encryption key. Email and SMS contacts remain unverified. Account identity details and signup photos are encrypted in PostgreSQL. Other uploaded images use temporary storage on the function runtime. Delivery uses a standalone FastAPI project and the existing Next.js project.

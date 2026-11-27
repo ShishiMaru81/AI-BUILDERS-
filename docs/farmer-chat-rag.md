@@ -1,10 +1,12 @@
 # Farmer Chat retrieval
 
-Farmer Chat searches the bundled guidance library in English, Bangla and common romanized Bangla. The library covers potato and tomato scouting, produce and rice storage, field drainage, root-zone moisture, and selected BAMIS crop calendars. Each entry has an English and Bangla summary, a publisher URL, and topic, crop, district or stage restrictions where applicable.
+Farmer Chat searches a library of 34 guidance passages in English, Bangla and common Romanized Bangla. Coverage includes rice diseases and pests, Boro irrigation and haor flooding, coastal salinity, soil testing, crop calendars, maize, wheat, pulses, mustard, vegetable and fruit scouting, and post-harvest storage. Each entry includes a bilingual summary, a publisher URL, and any crop, district or growth-stage restrictions. [DAE crop calendars](https://www.bamis.gov.bd/en/calendar/), [BRRI farmer training](https://knowledgebank-brri.org/Publications/Rice-Flip-Charts.pdf), [SRDI soil analysis](https://srdi.gov.bd/pages/static-pages/6922de03933eb65569e1797c).
+
+Greetings, thanks, and clear off-topic questions such as `2+3` are handled locally. A greeting followed by a farm question still reaches the farm tools and model. Replies about unrelated questions leave the established farm context intact, so the farmer can ask a follow-up on their crop. Buyer comparisons continue to use the amounts and costs the farmer supplies.
 
 At request time, the API filters the entries by scope and ranks keyword matches. The optional multilingual E5 encoder reranks eligible entries on the API host. Groq receives up to three passages alongside the existing chat evidence and returns a short answer. Links come from server-owned evidence. An answer that cites a retrieved passage appears as **AI reply with sources**. If the provider fails or returns an unusable answer, the app can show the most relevant published guidance directly.
 
-The bundled statements are reference material. Plot forecasts and district advisories retain their own source and freshness labels. A photo still requires crop screening and field confirmation. The library covers selected cases, and source matching has been checked with example questions rather than validated in the field.
+The bundled statements are reference material. Plot forecasts and district advisories retain their source and freshness labels. Farmer Chat reports when it cannot verify a current local forecast, and links to the official warning service when asked about a current flood or cyclone. A photo still requires crop screening and field confirmation. Automated checks cover retrieval and sample scenarios. Field accuracy still requires farmer and extension review. [BWDB flood warning centre](https://ffwc.gov.bd/), [Bangladesh Meteorological Department](https://bmd.gov.bd/).
 
 ## Run and verify
 

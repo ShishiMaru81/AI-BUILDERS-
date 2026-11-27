@@ -46,7 +46,7 @@ export function AccountAccess({locale, marketplace = false}: {locale: Locale; ma
   const nidFormat = t('Enter exactly 10, 13, or 17 digits.', 'ঠিক ১০, ১৩ অথবা ১৭টি অঙ্ক লিখুন।');
   function finish({token, user}: {token: string; user: {role: Role}}) {
     setSessionToken(token);
-    const dest = user.role === 'admin' ? 'marketplace/admin'
+    const dest = user.role === 'admin' ? 'admin'
       : marketplace || user.role === 'customer' ? 'marketplace' : 'dashboard';
     window.location.assign(`/${locale}/${dest}`);
   }
@@ -201,6 +201,9 @@ export function AccountAccess({locale, marketplace = false}: {locale: Locale; ma
         })}>
         <ShieldCheck size={16}/>{t('Explore a demo farm', 'ডেমো খামার দেখুন')}
       </button>}
+      {!FRONTEND_PREVIEW && <Link className="account-admin-link" href={'/' + locale + '/admin'}>
+        <ShieldCheck size={17} aria-hidden="true"/>{t('Admin sign in', 'অ্যাডমিন সাইন ইন')}
+      </Link>}
     </section>
   </main>;
 }

@@ -2,7 +2,9 @@
 from __future__ import annotations
 
 import hashlib
+import io
 import json
+import math
 import os
 import threading
 from pathlib import Path
@@ -19,6 +21,26 @@ CROPS = {c['id']: c for c in CATALOG['crops']}
 PLANT_LABELS = CATALOG['models']['plantvillage']['labels']
 RICE_LABELS = CATALOG['models']['rice']['labels']
 NOTICE = 'Research screening only. Crop identification and out-of-distribution rejection are not field-validated.'
+RESEARCH_MODEL_ID = 'agrodoctor-research-leaf'
+RESEARCH_PREPROCESSING = {
+    'image_size': 224, 'color_mode': 'RGB', 'resize': 'square', 'interpolation': 'bilinear',
+    'scale': 255.0, 'mean': [0.485, 0.456, 0.406], 'std': [0.229, 0.224, 0.225],
+    'exif_transpose': True,
+}
+RESEARCH_LABELS = {
+    'potato__early_blight': 'Potato___Early_blight', 'potato__healthy': 'Potato___healthy',
+    'potato__late_blight': 'Potato___Late_blight', 'potato__leafroll': 'Potato___Leafroll',
+    'tomato__bacterial_spot': 'Tomato___Bacterial_spot', 'tomato__early_blight': 'Tomato___Early_blight',
+    'tomato__healthy': 'Tomato___healthy', 'tomato__late_blight': 'Tomato___Late_blight',
+    'tomato__leaf_mold': 'Tomato___Leaf_Mold', 'tomato__septoria_leaf_spot': 'Tomato___Septoria_leaf_spot',
+}
+RESEARCH_PRODUCE_LABELS = {
+    'potato__sound_appearance': 'Potato___Sound_appearance',
+    'potato__visible_damage': 'Potato___Visible_damage',
+    'tomato__sound_appearance': 'Tomato___Sound_appearance',
+    'tomato__visible_damage': 'Tomato___Visible_damage',
+    'other__out_of_scope': 'Other___Out_of_scope',
+}
 _LOCK = threading.RLock()
 _CACHE: dict[tuple, dict] = {}
 
@@ -45,7 +67,7 @@ def crop_for_label(label: str) -> str | None:
     return next((c['id'] for c in CROPS.values() if c['label_prefix'] == prefix), None)
 
 
-def classify_logits(logits, labels: list[str], crop: str, threshold: float) -> dict:
+def classify_logits(logits, labels: list[str], crop: str, threshold: float | dict[str, float | None]) -> dict:
     import torch
     if logits.ndim != 1 or logits.numel() != len(labels):
         raise ValueError('Model output shape does not match class metadata')
@@ -57,7 +79,14 @@ def classify_logits(logits, labels: list[str], crop: str, threshold: float) -> d
     crop_indices.sort(key=lambda i: float(probs[i]), reverse=True)
     index = indices[0]
     score = float(probs[index])
-    reason = 'crop_mismatch' if crop_for_label(labels[index]) != crop else ('low_confidence' if score < threshold else None)
+    cutoff = threshold[labels[index]] if isinstance(threshold, dict) else threshold
+    reason = None
+    if crop_for_label(labels[index]) != crop:
+        reason = 'crop_mismatch'
+    elif cutoff is None:
+        reason = 'class_disabled'
+    elif score < cutoff:
+        reason = 'low_confidence'
     return dict(top_label='unknown' if reason else labels[index], abstained=bool(reason), score=score,
         score_type='uncalibrated_model_score', rejection_reason=reason, ood_notice=NOTICE,
         alternatives=[{'label': labels[i], 'score': float(probs[i])} for i in indices],
@@ -85,6 +114,84 @@ class DoctorRegistry:
             # Source checkout and /app/app container layouts have different depths.
             repo = next((p for p in Path(__file__).resolve().parents if (p/'ml/artifacts').is_dir()), None)
             self.root = repo/'ml/artifacts/multicrop' if repo else Path('/models/multicrop').resolve()
+
+    def _research_bundle(self, part: str = 'leaf') -> dict | None:
+        produce = part == 'produce'
+        key_name = 'AGRODOCTOR_RESEARCH_PRODUCE_MODEL_DIR' if produce else 'AGRODOCTOR_RESEARCH_MODEL_DIR'
+        configured = os.getenv(key_name, '').strip()
+        if not configured:
+            return None
+        model_id = 'agrodoctor-research-produce' if produce else RESEARCH_MODEL_ID
+        labels = RESEARCH_PRODUCE_LABELS if produce else RESEARCH_LABELS
+        folder = Path(configured)
+        binary = folder / 'model.ts'
+        card = dict(model_id=model_id, version=model_id, available=False,
+                    artifact_status='broken_artifact', labels=[], field_validated=False, metrics=None,
+                    source='AgroDoctor training run', limitations=[NOTICE])
+        try:
+            raw = (folder / 'model.json').read_bytes()
+            stat = binary.stat()
+        except OSError:
+            return {'card': {**card, 'artifact_status': 'absent'}}
+
+        with _LOCK:
+            key = (model_id, str(folder.resolve()), hashlib.sha256(raw).hexdigest(), stat.st_size, stat.st_mtime_ns)
+            if key in _CACHE:
+                return _CACHE[key]
+            try:
+                metadata = json.loads(raw)
+                if (metadata.get('schema_version') != 1 or metadata.get('architecture') != 'mobilenet_v3_small'
+                        or metadata.get('synthetic_smoke') is not False or metadata.get('field_validated') is not False
+                        or metadata.get('release_approved') is not False
+                        or metadata.get('output') != 'joint_logits'
+                        or metadata.get('score_type') != 'uncalibrated_joint_softmax'
+                        or metadata.get('preprocessing') != RESEARCH_PREPROCESSING):
+                    raise ValueError('Expected a compatible AgroDoctor research export')
+                entries = metadata['labels']
+                ids = [entry['id'] for entry in entries]
+                if (ids != sorted(set(ids)) or any(
+                    entry['id'] not in labels
+                    or entry['plant_part'] != ('leaf' if entry['id'] == 'other__out_of_scope' else part)
+                    or entry['id'] != f"{entry['crop']}__{entry['label']}" for entry in entries
+                ) or {entry['crop'] for entry in entries if entry['id'] != 'other__out_of_scope'} != {'potato', 'tomato'}
+                        or (produce and set(ids) != set(RESEARCH_PRODUCE_LABELS))):
+                    raise ValueError('Invalid research model class metadata')
+                cutoffs = metadata['thresholds']
+                if not isinstance(cutoffs, dict) or cutoffs.keys() != set(ids) or any(
+                    value is not None and (type(value) not in (int, float) or not math.isfinite(value) or not 0 <= value <= 1)
+                    for value in cutoffs.values()
+                ) or (produce and cutoffs['other__out_of_scope'] is not None):
+                    raise ValueError('Invalid research model thresholds')
+                data = binary.read_bytes()
+                digest = hashlib.sha256(data).hexdigest()
+                version = metadata['version']
+                if (metadata['artifact'] != {'path': 'model.ts', 'sha256': digest, 'size_bytes': len(data)}
+                        or not isinstance(version, str) or not version.strip()):
+                    raise ValueError('Research artifact checksum or version is invalid')
+                import torch
+                from torchvision import transforms
+
+                torch.set_num_threads(2)
+                model = torch.jit.load(io.BytesIO(data), map_location='cpu').eval()
+                with torch.inference_mode():
+                    output = model(torch.zeros(1, 3, 224, 224))
+                if tuple(output.shape) != (1, len(ids)) or not bool(torch.isfinite(output).all()):
+                    raise ValueError('Research artifact output does not match model classes')
+                transform = transforms.Compose([
+                    transforms.Resize((224, 224), interpolation=transforms.InterpolationMode.BILINEAR),
+                    transforms.ToTensor(),
+                    transforms.Normalize(RESEARCH_PREPROCESSING['mean'], RESEARCH_PREPROCESSING['std']),
+                ])
+                entry = {
+                    'card': {**card, 'version': version, 'available': True, 'artifact_status': 'ready',
+                             'labels': [labels[class_id] for class_id in ids]},
+                    'thresholds': {labels[class_id]: cutoffs[class_id] for class_id in ids},
+                    'model': model, 'transform': transform,
+                }
+            except Exception:
+                entry = {'card': card}
+            _CACHE[key] = entry
+            return entry
 
     def _bundle(self, model_id: str) -> dict:
         spec = CATALOG['models'][model_id]
@@ -151,13 +258,17 @@ class DoctorRegistry:
         return card
 
     def capabilities(self) -> dict:
+        extra = {}
+        for part in ('leaf', 'produce'):
+            if research := self._research_bundle(part):
+                extra[f'research_{part}_model'] = research['card']
         if doctor_vision.configured():
             card = doctor_vision.model_card()
             crops = [{**crop, 'model_id': card['model_id'], 'model_version': card['version'],
                       'available': True, 'artifact_status': 'configured', 'labels': [],
                       'has_healthy_class': False, 'limitations': card['limitations']} for crop in CROPS.values()]
             return {'provider': 'groq', 'crops': crops, 'models': [card],
-                    'limitations': card['limitations'], 'automatic_crop_detection': True}
+                    'limitations': card['limitations'], 'automatic_crop_detection': True, **extra}
         cards = {mid:self._bundle(mid)['card'] for mid in CATALOG['models']}
         crops = []
         for crop in CROPS.values():
@@ -167,7 +278,35 @@ class DoctorRegistry:
             crops.append({**crop, 'labels':labels, 'available':card['available'], 'model_version':card['version'],
                 'artifact_status':card['artifact_status'], 'has_healthy_class':healthy,
                 'limitations':[NOTICE]+([] if healthy else ['This crop has no healthy reference class; a healthy plant cannot be ruled in/out.'])})
-        return {'crops':crops,'models':list(cards.values()),'limitations':[NOTICE], 'automatic_crop_detection':False}
+        return {'crops':crops,'models':list(cards.values()),'limitations':[NOTICE], 'automatic_crop_detection':False, **extra}
+
+    def infer_research(self, image: Image.Image, crop: str, *, part: str = 'leaf') -> dict:
+        bundle = self._research_bundle(part)
+        if crop not in {'tomato', 'potato'} or not bundle or not bundle['card']['available']:
+            raise ModelBrokenError(f'The AgroDoctor research {part} model is unavailable.')
+        image = ImageOps.exif_transpose(image).convert('RGB')
+        flags = image_quality(image)
+        result = dict(top_label='unknown', abstained=True, score=None, score_type='not_available',
+                      alternatives=[], rejection_reason='image_quality', ood_notice=NOTICE)
+        if not flags:
+            try:
+                import torch
+                with torch.inference_mode():
+                    logits = bundle['model'](bundle['transform'](image).unsqueeze(0))[0]
+                result = classify_logits(logits, bundle['card']['labels'], crop, bundle['thresholds'])
+            except Exception as exc:
+                raise ModelBrokenError('Research inference could not complete.') from exc
+        if part == 'produce':
+            return dict(crop=crop, classification=result, model=bundle['card'], quality_flags=flags,
+                        status='unable_to_classify' if result['abstained'] else 'completed',
+                        advice=['Look at the whole item and photograph any discolored or damaged area in even light.',
+                                'Keep visibly damaged items separate while checking the rest of the batch.'],
+                        disclaimer='Appearance screening only. A photo cannot establish whether produce is safe to eat.')
+        return dict(crop=crop, classification=result, model=bundle['card'], quality_flags=flags,
+                    status='unable_to_classify' if result['abstained'] else 'completed',
+                    advice=['Compare symptoms on both sides of the leaf and record when they first appeared.',
+                            'Ask an agricultural extension officer to review symptoms before treatment.'],
+                    disclaimer=NOTICE)
 
     def screen_with_vision(self, image: Image.Image, crop: str, part: str, locale: str,
                            follow_up: Image.Image | None = None) -> dict:

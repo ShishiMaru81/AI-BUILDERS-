@@ -124,7 +124,7 @@ export function SessionProvider({
   const plotsQuery = useQuery({
     queryKey: ['plots'],
     queryFn: () => request<Plot[]>('/plots'),
-    enabled: state === 'authenticated',
+    enabled: state === 'authenticated' && user?.role !== 'admin',
     retry: (count, error) => {
       if (error instanceof ApiError && error.status === 401) return false;
       return count < 1;

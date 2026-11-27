@@ -15,6 +15,28 @@ from tests.test_farmer_chat import client, send, session
     ("bn", "কিছু পচা আলু পেলাম। সংরক্ষণের আগে কী করব?", "storage", "potato-tuber-sorting"),
     ("en", "What preparation helps drainage before heavy rain?", "weather", "rain-field-drainage"),
     ("bn", "ভেজা ধান সংরক্ষণের আগে কী করব?", "storage", "rice-drying-before-storage"),
+    ("en", "How do I scout for rice blast in Naogaon?", "health", "rice-blast-scouting"),
+    ("bn", "বোরো ধানের পাতাপোড়া হলে কী লক্ষণ দেখা যায়?", "health", "rice-bacterial-leaf-blight"),
+    ("bn", "আমন ধানের খোলপোড়া কীভাবে বুঝব?", "health", "rice-sheath-blight"),
+    ("bn", "Dhan e gach foring dekhle ki korbo?", "health", "rice-planthopper"),
+    ("bn", "বোরো ধানে এডব্লিউডি কী?", "irrigation", "boro-awd-irrigation"),
+    ("bn", "ধানের বীজ সংরক্ষণ কীভাবে করব?", "storage", "rice-seed-storage"),
+    ("en", "How can I plan Boro rice with coastal salinity in Satkhira?", "general", "coastal-rice-salinity"),
+    ("bn", "সুনামগঞ্জে হাওরের বোরো ধানে আগাম বন্যা এলে কী করব?", "weather", "haor-boro-flash-flood"),
+    ("bn", "সার দেওয়ার আগে মাটি পরীক্ষা করাব কোথায়?", "general", "soil-test-srdi"),
+    ("bn", "Bhutta poka, ki dekhbo?", "health", "maize-armyworm-scouting"),
+    ("bn", "বেগুনে ছিদ্র আর ঢলে পড়া ডগা দেখছি।", "health", "brinjal-shoot-fruit-borer"),
+    ("en", "What conditions favour wheat blast?", "health", "wheat-blast-flowering"),
+    ("bn", "সরিষার পাতার দাগ কীভাবে যাচাই করব?", "health", "mustard-alternaria"),
+    ("en", "Lentil leaves turning brown: is this Stemphylium?", "health", "lentil-stemphylium"),
+    ("bn", "আমে কালো দাগ পড়েছে।", "health", "mango-anthracnose"),
+    ("en", "What does chilli anthracnose look like?", "health", "chilli-anthracnose"),
+    ("bn", "পেঁয়াজে বেগুনি দাগ দেখলে কী পরীক্ষা করব?", "health", "onion-purple-blotch"),
+    ("bn", "পেঁয়াজ সংরক্ষণ করার আগে কীভাবে শুকাব?", "storage", "onion-curing-storage"),
+    ("en", "How do I dry chilli after harvest?", "storage", "chilli-drying"),
+    ("bn", "বরিশালে আমন পঞ্জিকা কোথায় পাব?", "calendar", "barishal-aman-calendar"),
+    ("bn", "আউশ আমন বোরো ধানের মৌসুম কীভাবে বাছাই করব?", "calendar", "rice-season-selection"),
+    ("en", "When to sow jute in Faridpur?", "calendar", "region-crop-calendar-index"),
 ])
 def test_keyword_retrieval_matches_reviewed_passage(monkeypatch, language, question, topic, expected):
     monkeypatch.setattr(rag.farmer_rag_vectors, "semantic_scores", lambda *_: {})
@@ -33,6 +55,9 @@ def test_district_crop_and_stage_scope():
     assert not rag.retrieve(question.replace("potato", "sweet potato"), "calendar", "potato", "Gazipur")
     assert not rag.retrieve("potato planting calendar", "calendar", "potato", "")
     assert not rag.retrieve("How do I find my account settings?", "general", "potato", "Gazipur")
+    assert not rag.retrieve("When to check the Aman rice calendar in Cumilla?", "calendar", "Aman rice", "Barishal")
+    assert not rag.retrieve("How do I scout a mustard disease called stemphylium?", "health", "lentil", "")
+    assert not rag.retrieve("Is AWD suitable for my Aman rice?", "irrigation", "Boro rice", "")
     assert "tomato-nursery-drainage" in {
         guide.id for guide in rag.retrieve("tomato drainage", "weather", "tomato", "", stage="Seedling")
     }

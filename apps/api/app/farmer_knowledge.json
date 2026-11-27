@@ -119,5 +119,225 @@
     "url": "https://www.bamis.gov.bd/res/public/calendars/2019/11/14/8852.pdf#page=1",
     "en": {"title": "Dhaka-region potato stage calendar", "text": "The Dhaka-region potato calendar spans October through January. It shows sprouting and establishment, leaf growth, tuber formation and enlargement, then maturity and harvest. Compare those stages with your recorded planting date and the crop you can see."},
     "bn": {"title": "ঢাকা অঞ্চলের আলুর বৃদ্ধির পঞ্জিকা", "text": "ঢাকা অঞ্চলের আলুর পঞ্জিকায় অক্টোবর থেকে জানুয়ারি পর্যন্ত অঙ্কুর ও চারা, পাতার বৃদ্ধি, কন্দ ধরা ও বড় হওয়া এবং শেষে পরিপক্বতা ও ফসল তোলার পর্যায় রয়েছে। আপনার রোপণের তারিখ ও মাঠে দেখা পর্যায়ের সঙ্গে এটি মিলিয়ে দেখুন।"}
+  },
+  {
+    "id": "rice-blast-scouting",
+    "topics": ["health"],
+    "crops": ["76","74","75","7"],
+    "terms": ["rice blast","blast","neck blast","leaf blast","white empty panicles","ধানের ব্লাস্ট","ব্লাস্ট","শিষ ব্লাস্ট","পাতা ব্লাস্ট","dhan blast"],
+    "publisher": "Bangladesh Rice Research Institute",
+    "url": "https://knowledgebank-brri.org/Publications/Rice-Flip-Charts.pdf",
+    "en": {"title":"Rice blast scouting","text":"Look for spindle-shaped spots with pale centres on leaves and dark damage at the base of the panicle near heading. Record whether the damage is on leaves, nodes or panicles, and take close-up and whole-plant photos. Empty grain alone does not identify blast."},
+    "bn": {"title":"ধানের ব্লাস্টের লক্ষণ যাচাই","text":"পাতায় মাঝখান ফিকে লম্বাটে দাগ এবং শিষ বের হওয়ার সময় শিষের গোড়ায় কালচে ক্ষত আছে কি দেখুন। ক্ষত পাতা, গিঁট নাকি শিষে, তা লিখে পুরো গাছ ও আক্রান্ত অংশের ছবি তুলুন। শুধু চিটা ধান দেখে ব্লাস্ট নিশ্চিত করা যায় না।"}
+  },
+  {
+    "id": "rice-bacterial-leaf-blight",
+    "topics": ["health"],
+    "crops": ["76","74","75","7"],
+    "terms": ["bacterial leaf blight","bacterial blight","leaf tip drying","পাতাপোড়া","পাতাপোড়া","পাতা পোড়া","পাতার আগা শুকিয়ে","dhan pata pora"],
+    "publisher": "Bangladesh Rice Research Institute",
+    "url": "https://knowledgebank-brri.org/Rice_Production_Training_Manual/Day_3/Module_10/Factsheet2%20-%20Patapora%20rog.pdf",
+    "en": {"title":"Rice bacterial leaf blight","text":"Record where the yellowing and drying starts. In bacterial leaf blight it often begins at the tips or edges and advances along the blade. Show the boundary between healthy and affected tissue to the local extension officer."},
+    "bn": {"title":"ধানের ব্যাকটেরিয়াজনিত পাতাপোড়া","text":"পাতার কোথা থেকে হলদে ও শুকনো অংশ শুরু হচ্ছে লিখুন। পাতাপোড়ায় অনেক সময় আগা বা কিনারা থেকে শুরু হয়ে দাগ পাতার নিচের দিকে নামে। সুস্থ আর আক্রান্ত অংশের সীমানার ছবি কৃষি কর্মকর্তাকে দেখান।"}
+  },
+  {
+    "id": "rice-sheath-blight",
+    "topics": ["health"],
+    "crops": ["76","74","75","7"],
+    "terms": ["sheath blight","sheath lesions","leaf sheath spots","খোলপোড়া","খোলপোড়া","খোল পোড়া","খোলে দাগ","khol pora"],
+    "publisher": "Bangladesh Rice Research Institute",
+    "url": "https://knowledgebank-brri.org/Publications/Rice-Flip-Charts.pdf",
+    "en": {"title":"Rice sheath blight scouting","text":"Look at the lower leaf sheaths near the waterline for oval, grey-green patches that can develop a darker margin. Inspect the inside of several hills and note whether the signs have moved upwards."},
+    "bn": {"title":"ধানের খোলপোড়ার লক্ষণ","text":"পানির সমতলের কাছের পাতার খোলে ডিম্বাকার ধূসর-সবুজ দাগ ও পরে ঘন রঙের কিনারা দেখা যায় কি না দেখুন। কয়েকটি গোছার ভেতরে দেখে লিখুন দাগ ওপরের খোলে উঠেছে কি না।"}
+  },
+  {
+    "id": "rice-planthopper",
+    "topics": ["health"],
+    "crops": ["76","74","75","7"],
+    "terms": ["brown planthopper","brown plant hopper","hopperburn","bph","বাদামি গাছফড়িং","বাদামী গাছফড়িং","গাছফড়িং","গাছফড়িং","gach foring"],
+    "publisher": "Bangladesh Rice Research Institute",
+    "url": "https://www.knowledgebank-brri.org/Publications/Rice-production-problem/Part1-insect.pdf",
+    "en": {"title":"Brown planthopper scouting in rice","text":"Inspect the lower stems of rice hills, including just outside a damaged patch, for small brown hoppers. Photograph insects at the base and note whether drying is patchy before deciding why plants are turning brown."},
+    "bn": {"title":"ধানের বাদামি গাছফড়িং দেখা","text":"শুকিয়ে যাওয়া ছোপের কিনারাসহ কয়েকটি ধানের গোছার নিচের কাণ্ডে ছোট বাদামি গাছফড়িং আছে কি না দেখুন। গোড়ায় পোকা দেখা গেলে ছবি তুলুন এবং জমিতে ক্ষতি ছোপ ছোপ কি না লিখুন।"}
+  },
+  {
+    "id": "boro-awd-irrigation",
+    "topics": ["irrigation"],
+    "crops": ["75","76"],
+    "terms": ["awd","alternate wetting and drying","safe awd","এডব্লিউডি","এ ডব্লিউ ডি","পর্যায়ক্রমে ভেজানো","পর্যায়ক্রমে ভেজানো","পানি সাশ্রয়ী সেচ","পানি সাশ্রয়ী সেচ"],
+    "publisher": "Bangladesh Rice Research Institute",
+    "url": "https://www.knowledgebank-brri.org/Rice_Production_Training_Manual/Day_2/Module_7/Factsheet%204%20-%20water%20saving%20technology%20%28AWD%29.pdf",
+    "en": {"title":"Alternate wetting and drying for irrigated rice","text":"AWD uses a perforated field tube to observe the subsurface water level and guide irrigation. Water management changes during establishment and around flowering. Check whether your field can be irrigated and drained reliably, then confirm the stage-specific method with an extension adviser."},
+    "bn": {"title":"সেচনির্ভর ধানে পর্যায়ক্রমে ভেজানো ও শুকানো","text":"এডব্লিউডি পদ্ধতিতে ছিদ্রযুক্ত নল দিয়ে মাটির ভেতরের পানির স্তর দেখে সেচের সিদ্ধান্ত নেওয়া হয়। চারা প্রতিষ্ঠা ও ফুল আসার সময় পানির ব্যবস্থাপনা বদলে যায়। জমিতে পানি দেওয়া ও বের করার নিয়ন্ত্রণ আছে কি না দেখে পর্যায়ভিত্তিক পদ্ধতি কৃষি কর্মকর্তার কাছে জেনে নিন।"}
+  },
+  {
+    "id": "rice-seed-storage",
+    "topics": ["storage","general"],
+    "crops": ["76","74","75","7"],
+    "terms": ["store rice seed","rice seed storage","save paddy seed","seed storage","ধানের বীজ সংরক্ষণ","বীজধান রাখা","বীজ ধান","bij dhan"],
+    "publisher": "Bangladesh Rice Research Institute",
+    "url": "https://knowledgebank-brri.org/Rice_Production_Training_Manual/Day_4/Module_11/Factsheet6%20-%20Seed%20storage%20techniques.pdf",
+    "en": {"title":"Saving rice seed for the next season","text":"Keep each seed lot separate and labelled by variety and collection date. Dry it before storage and protect the container from moisture. Check germination before planting a stored lot."},
+    "bn": {"title":"পরের মৌসুমের জন্য ধানের বীজ রাখা","text":"জাত ও সংগ্রহের তারিখ লিখে বীজের চালান আলাদা রাখুন। সংরক্ষণের আগে বীজ শুকিয়ে নিন এবং পাত্রে আর্দ্রতা ঢুকতে দেবেন না। লাগানোর আগে রাখা বীজের অঙ্কুরোদ্গম পরীক্ষা করুন।"}
+  },
+  {
+    "id": "coastal-rice-salinity",
+    "topics": ["general","weather","irrigation","calendar"],
+    "crops": ["76","74","75","7"],
+    "terms": ["coastal salinity","salt intrusion","saline water","saline soil","salt tolerant rice","লবণাক্ততা","লবণ পানি","লবণাক্ত মাটি","লবণসহিষ্ণু ধান","lobonakto pani"],
+    "publisher": "Agriculture Information Service",
+    "url": "https://ais.gov.bd/pages/krishi-kotha/%E0%A6%89%E0%A6%AA%E0%A6%95%E0%A7%82%E0%A6%B2%E0%A7%80%E0%A7%9F-%E0%A6%B2%E0%A6%AC%E0%A6%A3%E0%A6%BE%E0%A6%95%E0%A7%8D%E0%A6%A4-%E0%A6%85%E0%A6%9E%E0%A7%8D%E0%A6%9A%E0%A6%B2%E0%A7%87-%E0%A6%A7%E0%A6%BE%E0%A6%A8%E0%A7%87%E0%A6%B0-%E0%A6%86%E0%A6%AC%E0%A6%BE%E0%A6%A6-%E0%A6%93-%E0%A6%AB%E0%A6%B2%E0%A6%A8-%E0%A6%AC%E0%A7%83%E0%A6%A6%E0%A7%8D%E0%A6%A7%E0%A6%BF%E0%A6%A4%E0%A7%87-%E0%A6%95%E0%A6%B0%E0%A6%A3%E0%A7%80%E0%A7%9F-7a569c-6922d94ddbfbab28ce04b07b",
+    "en": {"title":"Rice planning in coastal saline areas","text":"Soil and irrigation water salinity can change within the season. Ask your local agriculture office to check both before choosing a salt-tolerant variety and planting window. One coastal recommendation may not fit another field."},
+    "bn": {"title":"উপকূলের লবণাক্ত এলাকায় ধান পরিকল্পনা","text":"একই মৌসুমে মাটি ও সেচের পানির লবণাক্ততা বদলাতে পারে। লবণসহিষ্ণু জাত ও রোপণের সময় ঠিক করার আগে স্থানীয় কৃষি অফিসের মাধ্যমে মাটি ও পানি দুটোই পরীক্ষা করান। এক জমির পরামর্শ পাশের জমিতেও মিলবে ধরে নেবেন না।"}
+  },
+  {
+    "id": "haor-boro-flash-flood",
+    "topics": ["weather","calendar","general"],
+    "crops": ["75","76"],
+    "terms": ["haor","flash flood","early flood","haor boro","হাওর","আগাম বন্যা","পাহাড়ি ঢল","হাওরে বোরো","haore boro"],
+    "publisher": "Agriculture Information Service",
+    "url": "https://ais.gov.bd/pages/krishi-kotha/%E0%A6%B8%E0%A6%BF%E0%A6%B2%E0%A7%87%E0%A6%9F-%E0%A6%85%E0%A6%9E%E0%A7%8D%E0%A6%9A%E0%A6%B2%E0%A7%87%E0%A6%B0-%E0%A6%95%E0%A7%83%E0%A6%B7%E0%A6%BF-%E0%A6%B8%E0%A6%AE%E0%A6%B8%E0%A7%8D%E0%A6%AF%E0%A6%BE-%E0%A6%93-%E0%A6%B8%E0%A6%AE%E0%A7%8D%E0%A6%AD%E0%A6%BE%E0%A6%AC%E0%A6%A8%E0%A6%BE-db7213-6922d955dbfbab28ce04b6c6",
+    "en": {"title":"Boro planning in flood-prone haor areas","text":"Early flooding can threaten Boro close to harvest in the haor. Discuss suitable short-duration varieties and planting windows with the agriculture office before the season. For a crop already in the field, pair its actual maturity with the latest local flood advisory."},
+    "bn": {"title":"হাওরে আগাম বন্যার মধ্যে বোরো পরিকল্পনা","text":"হাওরে বোরো কাটার কাছাকাছি সময়ে আগাম বন্যায় ক্ষতি হতে পারে। মৌসুমের আগে স্বল্পমেয়াদি উপযুক্ত জাত ও রোপণের সময় কৃষি অফিসের সঙ্গে ঠিক করুন। মাঠে ফসল থাকলে ধানের বর্তমান পরিপক্বতার সঙ্গে সর্বশেষ স্থানীয় বন্যার পরামর্শ মিলিয়ে সিদ্ধান্ত নিন।"}
+  },
+  {
+    "id": "soil-test-srdi",
+    "topics": ["general","irrigation","calendar","health"],
+    "terms": ["soil test","soil testing","soil analysis","soil ph","fertilizer recommendation","balanced fertilizer","nutrient test","মাটি পরীক্ষা","মাটির পরীক্ষা","মাটির পিএইচ","সার সুপারিশ","মৃত্তিকা নমুনা","mati porikkha","mati test"],
+    "publisher": "Soil Resource Development Institute",
+    "url": "https://srdi.gov.bd/pages/static-pages/6922de03933eb65569e1797c",
+    "en": {"title":"Soil testing before a fertilizer decision","text":"Ask the upazila agriculture office or SRDI about a soil test and how to take a representative sample for your field. Bring the intended crop and the previous fertilizer history so the results can guide a crop-specific plan."},
+    "bn": {"title":"সার ঠিক করার আগে মাটি পরীক্ষা","text":"উপজেলা কৃষি অফিস বা এসআরডিআইয়ের কাছে মাটি পরীক্ষা ও জমির প্রতিনিধিত্ব করে এমন নমুনা নেওয়ার নিয়ম জেনে নিন। কোন ফসল লাগাবেন ও আগে কী সার দিয়েছেন জানালে পরীক্ষার ফল অনুযায়ী ফসলভিত্তিক পরিকল্পনা করা যায়।"}
+  },
+  {
+    "id": "maize-armyworm-scouting",
+    "topics": ["health"],
+    "crops": ["8","78","79"],
+    "terms": ["fall armyworm","armyworm","whorl damage","frass in whorl","shot holes","ফল আর্মিওয়ার্ম","ফল আর্মি ওয়ার্ম","ফল আর্মি","ভুট্টার মাঝের পাতা","vutta poka","bhutta poka"],
+    "publisher": "Agriculture Information Service",
+    "url": "https://ais.gov.bd/pages/ekrishi/%E0%A6%AD%E0%A7%81%E0%A6%9F%E0%A7%8D%E0%A6%9F%E0%A6%BE-xq5d9r-6975d4840243b752c3c31b3b",
+    "en": {"title":"Maize fall armyworm scouting","text":"Inspect the centre whorl on young maize for fresh feeding damage, droppings and caterpillars. Check several plants across the field and photograph the damage and insect for extension identification. Holes alone can have other causes."},
+    "bn": {"title":"ভুট্টায় ফল আর্মিওয়ার্ম যাচাই","text":"ছোট ভুট্টা গাছের মাঝের মোড়ানো পাতায় নতুন খাওয়া দাগ, পোকার মল ও শুঁয়োপোকা আছে কি দেখুন। জমির কয়েক জায়গায় গাছ দেখে পোকা ও ক্ষতের ছবি কৃষি কর্মকর্তাকে দেখান। শুধু পাতার ছিদ্র দেখে পোকা নিশ্চিত করা যায় না।"}
+  },
+  {
+    "id": "brinjal-shoot-fruit-borer",
+    "topics": ["health"],
+    "crops": ["15"],
+    "terms": ["shoot and fruit borer","fruit borer","shoot borer","wilted shoots","holes in brinjal","ডগা ও ফল ছিদ্রকারী","ডগা ছিদ্র","বেগুনে ছিদ্র","বেগুনে পোকা","begun poka"],
+    "publisher": "Agriculture Information Service",
+    "url": "https://ais.gov.bd/pages/krishi-kotha/%E0%A6%A8%E0%A6%BF%E0%A6%B0%E0%A6%BE%E0%A6%AA%E0%A6%A6-%E0%A6%AC%E0%A7%87%E0%A6%97%E0%A7%81%E0%A6%A8-%E0%A6%9A%E0%A6%BE%E0%A6%B7-51830a-6922d93edbfbab28ce04a14b",
+    "en": {"title":"Brinjal shoot and fruit borer","text":"Look for wilted tender shoots and bored fruit with waste around entry holes. Separate affected shoots and fruit from marketable produce. Keep checking fresh shoots and small fruit to see whether new damage is appearing."},
+    "bn": {"title":"বেগুনের ডগা ও ফল ছিদ্রকারী পোকা","text":"কচি ডগা ঢলে পড়ছে কি না এবং ফলের ছিদ্রের মুখে পোকার মল আছে কি না দেখুন। আক্রান্ত ডগা ও ফল বিক্রিযোগ্য ফসল থেকে আলাদা করুন। নতুন ক্ষতি হচ্ছে কি না দেখতে কচি ডগা ও ছোট ফল পরীক্ষা করুন।"}
+  },
+  {
+    "id": "wheat-blast-flowering",
+    "topics": ["health","weather"],
+    "crops": ["9"],
+    "terms": ["wheat blast","bleached wheat heads","white wheat heads","গমের ব্লাস্ট","গমে ব্লাস্ট","গমের শিষ সাদা","gom blast"],
+    "publisher": "DAE · BAMIS",
+    "url": "https://www.bamis.gov.bd/en/diseases/1/all/9/",
+    "en": {"title":"Wheat blast and wet flowering weather","text":"BAMIS lists wet, humid conditions around flowering as favourable for wheat blast. If wheat heads are turning pale at this stage, note the recent wet weather and report the field signs to local extension. Weather alone cannot identify the disease."},
+    "bn": {"title":"গমে ব্লাস্ট ও ফুল আসার সময় ভেজা আবহাওয়া","text":"বামিস অনুযায়ী ফুল আসার সময় ভেজা ও আর্দ্র আবহাওয়া গমের ব্লাস্টের অনুকূল হতে পারে। এ সময় শিষ ফিকে হলে সাম্প্রতিক বৃষ্টি ও মাঠের লক্ষণ লিখে কৃষি কর্মকর্তাকে জানান। শুধু আবহাওয়া দেখে রোগ বোঝা যায় না।"}
+  },
+  {
+    "id": "mustard-alternaria",
+    "topics": ["health"],
+    "crops": ["44"],
+    "terms": ["alternaria leaf blight","alternaria","mustard leaf blight","mustard dark spots","সরিষার পাতার দাগ","সরিষার দাগ","সরিষার অলটারনারিয়া","sorisha dag"],
+    "publisher": "DAE · BAMIS",
+    "url": "https://www.bamis.gov.bd/en/diseases/1/all/44/",
+    "en": {"title":"Mustard leaf blight checks","text":"The BAMIS mustard guide lists Alternaria leaf blight among the crop’s diseases. Check whether dark spots appear on several leaves or also on pods. Take close photos of fresh and older spots and record the crop stage."},
+    "bn": {"title":"সরিষার পাতার দাগ যাচাই","text":"বামিসের সরিষা নির্দেশিকায় অলটারনারিয়া পাতার দাগের উল্লেখ আছে। কালচে দাগ একাধিক পাতায় আছে, নাকি শুঁটিতেও আছে, মিলিয়ে দেখুন। নতুন ও পুরোনো দাগের কাছের ছবি এবং বৃদ্ধির পর্যায় লিখে রাখুন।"}
+  },
+  {
+    "id": "lentil-stemphylium",
+    "topics": ["health"],
+    "crops": ["58"],
+    "terms": ["stemphylium","lentil blight","lentil leaves turning brown","মসুরের পাতায় দাগ","মসুরের ব্লাইট","মসুরের পাতা ঝলসে","স্টেমফাইলিয়াম","mosur pata"],
+    "publisher": "DAE · BAMIS",
+    "url": "https://www.bamis.gov.bd/en/diseases/1/all/58/",
+    "en": {"title":"Leaf blight checks in lentil","text":"Stemphylium blight is among the diseases listed for lentil in BAMIS. Record whether drying starts on leaves or across whole plants and whether affected plants cluster in wetter areas. Show both fresh and older symptoms to extension staff."},
+    "bn": {"title":"মসুরের পাতা ঝলসানো যাচাই","text":"বামিসে মসুরের রোগের মধ্যে স্টেমফাইলিয়াম ব্লাইটের উল্লেখ আছে। শুকানো পাতা থেকে শুরু হচ্ছে নাকি পুরো গাছে, আর ভেজা অংশে গাছগুলো বেশি আক্রান্ত কি না দেখুন। নতুন ও পুরোনো লক্ষণ কৃষি কর্মকর্তাকে দেখান।"}
+  },
+  {
+    "id": "mango-anthracnose",
+    "topics": ["health","storage"],
+    "crops": ["65"],
+    "terms": ["mango anthracnose","anthracnose","mango black spots","mango dark spots","আমের অ্যানথ্রাকনোজ","আমে অ্যানথ্রাকনোজ","আমে কালো দাগ","আমের কালো দাগ","aam kalo dag"],
+    "publisher": "DAE · BAMIS",
+    "url": "https://www.bamis.gov.bd/en/diseases/1/all/65/",
+    "en": {"title":"Mango anthracnose checks","text":"BAMIS lists anthracnose for mango. Record whether fresh dark marks appear on flowers, leaves or fruit, and whether damaged fruit was noticed before or after harvest. Keep affected fruit separate while you seek confirmation."},
+    "bn": {"title":"আমের অ্যানথ্রাকনোজ যাচাই","text":"বামিসের আমের রোগ তালিকায় অ্যানথ্রাকনোজ রয়েছে। কালো দাগ মুকুলে, পাতায় নাকি ফলে এবং ফল তোলার আগে নাকি পরে দেখা গেছে লিখে রাখুন। কারণ যাচাই করার সময় দাগযুক্ত ফল আলাদা রাখুন।"}
+  },
+  {
+    "id": "chilli-anthracnose",
+    "topics": ["health"],
+    "crops": ["45"],
+    "terms": ["chilli anthracnose","chili anthracnose","anthracnose","chilli fruit rot","chili sunken spots","মরিচের ফল পচা","মরিচের অ্যানথ্রাকনোজ","মরিচে দাগ","morich pocha"],
+    "publisher": "Agriculture Information Service",
+    "url": "https://ais.gov.bd/pages/krishi-kotha/%E0%A6%AE%E0%A6%B0%E0%A6%BF%E0%A6%9A%E0%A7%87%E0%A6%B0-%E0%A6%B0%E0%A7%8B%E0%A6%97-%E0%A6%93-%E0%A6%A4%E0%A6%BE%E0%A6%B0-%E0%A6%AA%E0%A7%8D%E0%A6%B0%E0%A6%A4%E0%A6%BF%E0%A6%95%E0%A6%BE%E0%A6%B0-9deef2-6922d947dbfbab28ce04ab66",
+    "en": {"title":"Chilli anthracnose checks","text":"Check chilli fruit for dark, sunken marks and photograph their edges. Note how many fruit show similar damage and whether it is visible on green fruit, ripe fruit or both. Ask local extension to distinguish anthracnose from other rots."},
+    "bn": {"title":"মরিচের অ্যানথ্রাকনোজের লক্ষণ","text":"মরিচে কালচে বসে যাওয়া দাগ আছে কি দেখে দাগের কিনারার ছবি তুলুন। কতটি ফলে একই দাগ এবং কাঁচা নাকি পাকা ফলে বেশি, তা লিখুন। অন্য পচনের সঙ্গে পার্থক্য বুঝতে কৃষি কর্মকর্তাকে দেখান।"}
+  },
+  {
+    "id": "onion-purple-blotch",
+    "topics": ["health"],
+    "crops": ["46"],
+    "terms": ["purple blotch","onion purple blotch","onion leaf spots","পেঁয়াজের বেগুনি দাগ","পেঁয়াজে বেগুনি দাগ","পার্পল ব্লচ","peyaj beguni dag"],
+    "publisher": "Agriculture Information Service",
+    "url": "https://ais.gov.bd/pages/krishi-kotha/%E0%A6%AA%E0%A7%87%E0%A6%81%E0%A7%9F%E0%A6%BE%E0%A6%9C-%E0%A6%AE%E0%A6%B8%E0%A6%B2%E0%A6%BE%E0%A6%AB%E0%A6%B8%E0%A6%B2-767643-6922d95cdbfbab28ce04bcf5",
+    "en": {"title":"Purple blotch checks on onion","text":"Purple blotch is one of several onion leaf diseases. Check whether fresh marks are on the leaf or the bulb, and take a close-up of the spot and an overall photo of the plant. An extension officer can compare it with other onion blights."},
+    "bn": {"title":"পেঁয়াজের বেগুনি দাগ যাচাই","text":"পার্পল ব্লচ পেঁয়াজের পাতার কয়েকটি রোগের একটি। নতুন দাগ পাতায় নাকি কন্দে রয়েছে দেখুন এবং আক্রান্ত অংশ ও পুরো গাছের ছবি তুলুন। অন্যান্য দাগের রোগের সঙ্গে লক্ষণ কৃষি কর্মকর্তার মাধ্যমে মেলান।"}
+  },
+  {
+    "id": "onion-curing-storage",
+    "topics": ["storage"],
+    "crops": ["46"],
+    "terms": ["onion storage","onion curing","cure onions","dry onion necks","store onions","পেঁয়াজ সংরক্ষণ","পেঁয়াজ শুকানো","পেঁয়াজের গলা","peyaj shukano","peyaj storage"],
+    "publisher": "Agriculture Information Service",
+    "url": "https://ais.gov.bd/pages/krishi-kotha/%E0%A6%AA%E0%A7%87%E0%A6%81%E0%A7%9F%E0%A6%BE%E0%A6%9C%E0%A7%87%E0%A6%B0-%E0%A6%B8%E0%A6%82%E0%A6%B0%E0%A6%95%E0%A7%8D%E0%A6%B7%E0%A6%A3-%E0%A6%95%E0%A7%8D%E0%A6%B7%E0%A6%AE%E0%A6%A4%E0%A6%BE-%E0%A6%AC%E0%A7%83%E0%A6%A6%E0%A7%8D%E0%A6%A7%E0%A6%BF%E0%A6%B0-%E0%A6%95%E0%A7%8C%E0%A6%B6%E0%A6%B2-07d3d0-6922d93bdbfbab28ce049e2b",
+    "en": {"title":"Curing onions before storage","text":"Dry harvested onions in a shaded, ventilated place so the neck and outer layers dry before storage. Sort out bruised, wet or visibly rotting bulbs and check stored onions periodically for new damage."},
+    "bn": {"title":"সংরক্ষণের আগে পেঁয়াজ শুকানো","text":"ফসল তোলার পর ছায়া ও বাতাস চলাচল করে এমন জায়গায় পেঁয়াজের গলা ও বাইরের খোসা শুকাতে দিন। থেঁতলানো, ভেজা বা পচা কন্দ আলাদা রাখুন এবং রাখা পেঁয়াজে নতুন পচন দেখা দিচ্ছে কি না দেখুন।"}
+  },
+  {
+    "id": "chilli-drying",
+    "topics": ["storage"],
+    "crops": ["45"],
+    "terms": ["dry chilli","dry chili","chilli drying","chili drying","dried chillies","মরিচ শুকানো","শুকনা মরিচ","মরিচ শুকাব","morich shukano"],
+    "publisher": "Agriculture Information Service",
+    "url": "https://ais.gov.bd/pages/ekrishi/%E0%A6%AE%E0%A6%B0%E0%A6%BF%E0%A6%9A-s40d28-69a2d02de01e4da62442f183",
+    "en": {"title":"Drying ripe chillies","text":"Ripe red chillies are used for drying. Sort out visibly damaged fruit, protect drying chillies from rain and moisture, and keep the dry lot separate from fresh fruit. Ask extension for the specification required by your buyer."},
+    "bn": {"title":"পাকা মরিচ শুকানোর প্রস্তুতি","text":"পাকা লাল মরিচ শুকানো যায়। ক্ষতিগ্রস্ত মরিচ আলাদা করুন, শুকানোর সময় বৃষ্টি ও ভেজা থেকে বাঁচান এবং শুকনো মরিচ তাজা মরিচ থেকে আলাদা রাখুন। ক্রেতার দরকারি মান কৃষি কর্মকর্তার কাছে যাচাই করুন।"}
+  },
+  {
+    "id": "barishal-aman-calendar",
+    "topics": ["calendar","briefing"],
+    "crops": ["74"],
+    "districts": ["Barishal","Bhola","Patuakhali","Pirojpur","Barguna","Jhalokati"],
+    "terms": ["aman rice calendar","aman calendar","aman planting","aman harvest","sowing calendar","paddy calendar","আমনের পঞ্জিকা","আমন পঞ্জিকা","আমন লাগানোর সময়","আমন মৌসুম","amon calendar"],
+    "publisher": "DAE · BAMIS",
+    "url": "https://www.bamis.gov.bd/res/public/calendars/2019/08/23/5090.pdf",
+    "en": {"title":"Barishal-region Aman rice calendar","text":"The published Barishal-region Aman calendar spans June to November and aligns growth stages with typical seasonal weather. Compare the stage on your own plot with the calendar before planning field work. Current district advice can change with heavy rain or local waterlogging."},
+    "bn": {"title":"বরিশাল অঞ্চলের আমন ধানের পঞ্জিকা","text":"বরিশাল অঞ্চলের প্রকাশিত আমন পঞ্জিকায় জুন থেকে নভেম্বর পর্যন্ত বৃদ্ধির পর্যায় ও মৌসুমি আবহাওয়া দেখানো হয়েছে। মাঠের কাজ ঠিক করার আগে নিজের জমির পর্যায়ের সঙ্গে পঞ্জিকা মিলিয়ে দেখুন। ভারী বৃষ্টি বা জলাবদ্ধতায় জেলার বর্তমান পরামর্শ বদলাতে পারে।"}
+  },
+  {
+    "id": "rice-season-selection",
+    "topics": ["calendar","general"],
+    "crops": ["76","7","74","75"],
+    "terms": ["aus aman boro","aman and boro","three rice seasons","rice seasons","difference between aus","ধানের মৌসুম","আউশ আমন বোরো","আউশ আমন","আমন ও বোরো","dhan season"],
+    "publisher": "DAE · BAMIS",
+    "url": "https://www.bamis.gov.bd/en/calendar/",
+    "en": {"title":"Choosing the Bangladesh rice season","text":"BAMIS gives separate calendars for Aus, Aman and Boro. Choose the season and district before comparing weather and crop stages, and ask your local adviser about variety and water availability. A single planting date does not apply to every district."},
+    "bn": {"title":"বাংলাদেশে ধানের মৌসুম বাছাই","text":"বামিসে আউশ, আমন ও বোরোর আলাদা পঞ্জিকা আছে। আবহাওয়া ও বৃদ্ধির পর্যায় মেলানোর আগে নিজের মৌসুম ও জেলা বেছে নিন। জাত ও পানির সুবিধা সম্পর্কে স্থানীয় কৃষি কর্মকর্তার কাছে জেনে নিন।"}
+  },
+  {
+    "id": "region-crop-calendar-index",
+    "topics": ["calendar","general"],
+    "crops": ["8","78","79","9","44","10","58","85","86","46","45","65","15"],
+    "terms": ["crop weather calendar","sowing calendar","regional calendar","when to sow","when to plant","which planting season","কখন লাগাব","কখন বপন","বপনের সময়","বপনের সময়","আবহাওয়া পঞ্জিকা","মৌসুমে চাষ","kobe lagabo","kobe bopon"],
+    "publisher": "DAE · BAMIS",
+    "url": "https://www.bamis.gov.bd/en/calendar/",
+    "en": {"title":"District and crop weather calendars","text":"BAMIS groups crop calendars by crop, region and season, including separate calendars for Rabi and Kharif maize and mung bean. Match the crop and region first, then check the sowing or transplanting stage. Use the current extension advice for a field-specific decision."},
+    "bn": {"title":"জেলা ও ফসলের আবহাওয়া পঞ্জিকা","text":"বামিসে ফসল, অঞ্চল ও মৌসুম অনুযায়ী পঞ্জিকা আছে। যেমন ভুট্টা ও মুগের রবি এবং খরিফের পঞ্জিকা আলাদা। প্রথমে ফসল ও অঞ্চল মিলিয়ে বপন বা রোপণের পর্যায় দেখুন। নিজের জমির সিদ্ধান্তের জন্য কৃষি অফিসের বর্তমান পরামর্শ নিন।"}
   }
 ]

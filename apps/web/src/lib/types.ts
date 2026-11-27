@@ -185,6 +185,8 @@ export type CropCapability = {
 };
 export type DoctorCapabilities = {
   provider?: 'groq';
+  research_leaf_model?: Model;
+  research_produce_model?: Model;
   crops: CropCapability[];
   models: Model[];
   limitations: string[];

@@ -10,7 +10,6 @@ import type {Product,Auction,PageOf,MarketRole,SellerRating} from '@/lib/marketp
 import {MarketContext,useMarket,send,useMarketQuery,rows,cash,Field,Panel,DataState,Empty,ProductImage,ProductVideo,useIdempotency} from './marketplace-shared';
 import {MarketplaceCart,MarketplaceOrders,MarketplaceAccount,MarketplaceNotifications,AuctionBox} from './marketplace-commerce';
 import {MarketplaceSeller} from './marketplace-seller';
-import {MarketplaceAdmin} from './marketplace-admin';
 import './marketplace.css';
 
 export function Marketplace({locale,path}:{locale:'en'|'bn';path:string}){
@@ -42,7 +41,7 @@ export function Marketplace({locale,path}:{locale:'en'|'bn';path:string}){
      <Link href={`/${locale}/marketplace/account`}>{t('Profile','প্রোফাইল')}</Link>
      <Link href={`/${locale}/marketplace/notifications`}>{t('Updates','বিজ্ঞপ্তি')}</Link>
     </>}
-    {role==='admin'&&<Link href={`/${locale}/marketplace/admin`}>{t('Administration','প্রশাসন')}</Link>}
+    {role==='admin'&&<Link href={`/${locale}/admin`}>{t('Administration','প্রশাসন')}</Link>}
     {role?<Link href={`/${locale}/marketplace/logout`}>{t('Sign out','বের হন')}</Link>:<Link href={`/${locale}/marketplace/auth`}>{t('Sign in / Join','প্রবেশ / যোগ দিন')}</Link>}
     <Link href={`/${locale==='en'?'bn':'en'}/marketplace${sub?'/'+sub:''}`}>{locale==='en'?'বাংলা':'English'}</Link>
    </nav>
@@ -51,7 +50,7 @@ export function Marketplace({locale,path}:{locale:'en'|'bn';path:string}){
   {error&&<div className="mk-error" role="alert">{error}</div>}{notice&&<div className="mk-success" role="status">{notice}</div>}
   {session.state==='checking'?<p role="status">{t('Checking your session…','সেশন যাচাই হচ্ছে…')}</p>:
    seller&&shopping?<Panel title={t('Buying is for customer accounts','কেনার জন্য ক্রেতা অ্যাকাউন্ট লাগবে')}><Link href={`/${locale}/marketplace/seller`}>{t('Open seller studio','বিক্রেতা স্টুডিও খুলুন')}</Link></Panel>:
-   sub.startsWith('farmers/')?<FarmerProfile id={sub.split('/')[1]}/>:sub==='auctions'?<AuctionDiscovery/>:sub==='auth'?role==='admin'?<MarketplaceAdmin/>:<MarketplaceChoices/>:sub==='logout'?<MarketplaceLogout/>:sub.startsWith('products/')?<ProductDetail id={sub.split('/')[1]}/>:sub==='cart'?buyer?<MarketplaceCart/>:<SignInRequired/>:sub==='orders'?role?<MarketplaceOrders/>:<SignInRequired/>:sub==='seller'?seller?<MarketplaceSeller/>:role?<Panel title={t('Selling is for farmer accounts','বিক্রি করতে কৃষক অ্যাকাউন্ট লাগবে')}><Link href={`/${locale}/marketplace/browse`}>{t('Browse produce','পণ্য দেখুন')}</Link></Panel>:<SignInRequired/>:sub==='admin'?role==='admin'?<MarketplaceAdmin/>:<SignInRequired/>:sub==='account'?role?<MarketplaceAccount/>:<SignInRequired/>:sub==='notifications'?role?<MarketplaceNotifications/>:<SignInRequired/>:sub==='favorites'?buyer?<Favorites/>:<SignInRequired/>:seller||(!sub&&buyer)?<MarketplaceChoices/>:<Discovery/>}
+   sub.startsWith('farmers/')?<FarmerProfile id={sub.split('/')[1]}/>:sub==='auctions'?<AuctionDiscovery/>:sub==='auth'?<MarketplaceChoices/>:sub==='logout'?<MarketplaceLogout/>:sub.startsWith('products/')?<ProductDetail id={sub.split('/')[1]}/>:sub==='cart'?buyer?<MarketplaceCart/>:<SignInRequired/>:sub==='orders'?role?<MarketplaceOrders/>:<SignInRequired/>:sub==='seller'?seller?<MarketplaceSeller/>:role?<Panel title={t('Selling is for farmer accounts','বিক্রি করতে কৃষক অ্যাকাউন্ট লাগবে')}><Link href={`/${locale}/marketplace/browse`}>{t('Browse produce','পণ্য দেখুন')}</Link></Panel>:<SignInRequired/>:sub==='account'?role?<MarketplaceAccount/>:<SignInRequired/>:sub==='notifications'?role?<MarketplaceNotifications/>:<SignInRequired/>:sub==='favorites'?buyer?<Favorites/>:<SignInRequired/>:seller||(!sub&&buyer)?<MarketplaceChoices/>:<Discovery/>}
  <footer className="mk-photo-credits"><a href="/crops/credits.html" target="_blank" rel="noopener noreferrer">{t('Crop photo credits','ফসলের ছবির কৃতজ্ঞতা')}</a></footer></div></MarketContext.Provider>;
 }
 function SignInRequired(){const {t,go}=useMarket();return <Panel title={t('Your marketplace account','আপনার বাজার অ্যাকাউন্ট')}><p>{t('Sign in to continue.','চালিয়ে যেতে উপযুক্ত বাজার ভূমিকায় প্রবেশ করুন।')}</p><button className="mk-primary" onClick={()=>go('auth')}>{t('Sign in / Join','প্রবেশ / যোগ দিন')}</button></Panel>;}

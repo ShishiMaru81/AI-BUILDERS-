@@ -1,10 +1,10 @@
-import {notFound} from 'next/navigation';
+import {notFound, redirect} from 'next/navigation';
 import Workspace from '@/components/workspace';
 
 const VALID_LOCALES = new Set(['en', 'bn']);
 const VALID_PAGES = new Set([
   'dashboard','agrodoctor','floodcrop','market','agrorescue','action-center',
-  'marketplace','farms','farm-tools','history','transparency','devices','settings','landing',
+  'marketplace','farms','farm-tools','history','transparency','devices','settings','landing','admin',
 ]);
 
 export default async function Page({
@@ -18,6 +18,9 @@ export default async function Page({
   const loc = locale as 'en' | 'bn';
 
   const segments = page ?? [];
+  if (segments.length === 2 && segments[0] === 'marketplace' && segments[1] === 'admin') {
+    redirect('/' + loc + '/admin');
+  }
   if (segments.length === 0) {
     // root → landing
   } else {

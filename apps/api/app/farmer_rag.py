@@ -67,31 +67,40 @@ def _lexical_index():
 
 
 _EXTRA_CROPS = {
-    "tomatoes": "13", "tomato plant": "13", "টমেটোর": "13", "টমাটোর": "13",
-    "potatoes": "52", "আলুর": "52", "alu": "52", "dhan": "76",
+    "tomatoes": "13", "tomato plant": "13", "টমেটোর": "13", "টমাটোর": "13", "tomato gach": "13",
+    "potatoes": "52", "আলুর": "52", "alu": "52", "dhan": "76", "aman dhan": "74",
+    "boro dhan": "75", "aus dhan": "7", "bhutta": "8", "vutta": "8", "begun": "15",
+    "morich": "45", "peyaj": "46", "piyaj": "46", "sorisha": "44", "shorisha": "44",
+    "mosur": "58", "mung bean": "85", "mungbean": "85", "green gram": "85", "মুগ": "85",
     "sweet potato": "sweet-potato", "মিষ্টি আলু": "sweet-potato",
 }
 _CROP_NAMES = sorted(((_phrase(term), key) for term, key in {
-    **{name: crop_id for crop_id, names in _CROPS.items() for name in names},
+    **{name + suffix: crop_id for crop_id, names in _CROPS.items() for name in names
+       for suffix in (("", "র", "ের", "ে", "তে") if any("\u0980" <= c <= "\u09ff" for c in name) else ("",))},
     **_EXTRA_CROPS,
 }.items()), key=lambda entry: -len(entry[0]))
-_DISTRICT_NAMES = tuple((_phrase(term), district.name) for district in set(_DISTRICTS.values())
-                        for term in (district.name, district.bangla, district.bangla + "ে", district.bangla + "তে"))
+_DISTRICT_NAMES = tuple((_phrase(term), district.name) for district in sorted(set(_DISTRICTS.values()), key=lambda d: d.name)
+                        for term in (district.name, *(district.bangla + suffix for suffix in ("", "ে", "তে", "র", "ের"))))
+_DISTRICT_NAMES += tuple((_phrase(alias), place.name) for alias in
+                         ("Chittagong", "Comilla", "Jessore", "Bogra", "Barisal", "Netrakona", "Jhalakati")
+                         if (place := resolve_district(alias)))
 _SEEDLING_TERMS = tuple(map(_phrase, ("nursery", "seedling", "seedlings", "seedbed", "বীজতলা", "চারা", "চারায়", "chara")))
 
 
-def _crop_matches(question: str, fallback: str) -> set[str]:
-    text = question
+def mentioned_crops(question: str) -> set[str]:
+    text = _phrase(question)
     # Match longer names first so "sweet potato" and "Aman rice" keep their own scope.
     named = set()
     for phrase, crop in _CROP_NAMES:
         if phrase in text:
             named.add(crop)
             text = text.replace(phrase, " ")
-    if named:
-        return named
-    crop = resolve_crop(fallback)
-    return {crop} if crop else set()
+    return named
+
+
+def mentioned_districts(question: str) -> set[str]:
+    text = _phrase(question)
+    return {name for phrase, name in _DISTRICT_NAMES if phrase in text}
 
 
 def retrieve(question: str, topic: str, crop: str, district: str, *, stage: str = "") -> list[Guide]:
@@ -99,8 +108,8 @@ def retrieve(question: str, topic: str, crop: str, district: str, *, stage: str 
     if topic in {"market", "handoff"}:
         return []
     text = _phrase(question)
-    crops = _crop_matches(text, crop)
-    locations = {name for phrase, name in _DISTRICT_NAMES if phrase in text}
+    crops = mentioned_crops(question) or ({crop_id} if (crop_id := resolve_crop(crop)) else set())
+    locations = mentioned_districts(question)
     if not locations and (place := resolve_district(district)):
         locations.add(place.name)
     norm_stage = "seedling" if any(term in text for term in _SEEDLING_TERMS) else stage.casefold().strip()

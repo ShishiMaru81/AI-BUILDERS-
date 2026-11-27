@@ -62,6 +62,47 @@ def test_other_crop_preview_and_plot_mismatch(client, session, monkeypatch):
     assert client.get('/api/v1/doctor/cases').json()['total'] == 0
 
 
+def test_research_leaf_preview_stays_local_and_unsaved(client, session, monkeypatch):
+    from app.doctor_models import DoctorRegistry
+
+    monkeypatch.setenv('GROQ_API_KEY', 'unit-test-only')
+
+    def local(_registry, image, crop):
+        assert crop == 'tomato' and image.size == (320, 240)
+        return {'model': {'model_id': 'agrodoctor-research-leaf', 'version': 'test-export', 'available': True},
+                'crop': crop, 'status': 'unable_to_classify'}
+
+    monkeypatch.setattr(DoctorRegistry, 'infer_research', local)
+    form = dict(crop='tomato', plant_part='leaf', screening_mode='research_leaf')
+    result = upload(client, **form)
+    assert result.status_code == 200, result.text
+    assert result.json()['model']['version'] == 'test-export'
+    assert 'id' not in result.json()
+    assert upload(client, **{**form, 'plot_id': session['plot_id']}).status_code == 422
+    assert upload(client, **{**form, 'plant_part': 'other'}).status_code == 422
+    assert client.get('/api/v1/doctor/cases').json()['total'] == 0
+
+
+def test_research_produce_preview_needs_no_cloud_and_does_not_save(client, session, monkeypatch):
+    from app.doctor_models import DoctorRegistry
+
+    monkeypatch.delenv('GROQ_API_KEY', raising=False)
+
+    def local(_registry, image, crop, *, part='leaf'):
+        assert part == 'produce' and crop == 'potato' and image.size == (320, 240)
+        return {'model': {'model_id': 'agrodoctor-research-produce', 'version': 'test-produce', 'available': True},
+                'crop': crop, 'status': 'unable_to_classify'}
+
+    monkeypatch.setattr(DoctorRegistry, 'infer_research', local)
+    form = {'crop': 'potato', 'plant_part': 'other', 'screening_mode': 'research_produce'}
+    result = upload(client, **form)
+    assert result.status_code == 200, result.text
+    assert result.json()['model']['version'] == 'test-produce'
+    assert 'id' not in result.json()
+    assert upload(client, **{**form, 'plant_part': 'leaf'}).status_code == 422
+    assert client.get('/api/v1/doctor/cases').json()['total'] == 0
+
+
 @pytest.mark.parametrize('outcome', ['uncertain', 'unrelated'])
 def test_abstention_never_displays_spurious_label(client, session, monkeypatch, outcome):
     provider(monkeypatch, finding(outcome=outcome, part='unknown', crop_match='unknown', condition='bogus'))

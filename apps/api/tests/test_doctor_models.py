@@ -60,6 +60,54 @@ def test_nonfinite_shape_and_low_confidence_are_safe():
         classify_logits(torch.zeros(2), RICE_LABELS, 'rice', .85)
 
 
+def test_research_bundle_preserves_trained_preprocessing_and_abstention(monkeypatch, tmp_path):
+    import hashlib
+    import torch
+    from app.doctor_models import DoctorRegistry
+
+    class TestModel(torch.nn.Module):
+        def forward(self, inputs):
+            green = inputs[:, 1].mean(dim=(1, 2))
+            return torch.stack((green, -green), dim=1)
+
+    model = tmp_path / 'model.ts'
+    torch.jit.trace(TestModel(), torch.zeros(1, 3, 224, 224)).save(str(model))
+    checksum = hashlib.sha256(model.read_bytes()).hexdigest()
+    card = {
+        'schema_version': 1, 'architecture': 'mobilenet_v3_small', 'version': 'test-research-export',
+        'artifact': {'path': 'model.ts', 'size_bytes': model.stat().st_size, 'sha256': checksum},
+        'labels': [
+            {'id': 'potato__late_blight', 'crop': 'potato', 'plant_part': 'leaf', 'label': 'late_blight'},
+            {'id': 'tomato__healthy', 'crop': 'tomato', 'plant_part': 'leaf', 'label': 'healthy'},
+        ],
+        'preprocessing': {
+            'image_size': 224, 'color_mode': 'RGB', 'resize': 'square', 'interpolation': 'bilinear',
+            'scale': 255.0, 'mean': [0.485, 0.456, 0.406], 'std': [0.229, 0.224, 0.225],
+            'exif_transpose': True,
+        },
+        'output': 'joint_logits', 'score_type': 'uncalibrated_joint_softmax',
+        'thresholds': {'potato__late_blight': 0.9, 'tomato__healthy': None},
+        'field_validated': False, 'release_approved': False, 'synthetic_smoke': False,
+    }
+    card_path = tmp_path / 'model.json'
+    card_path.write_text(json.dumps(card), encoding='utf-8')
+    monkeypatch.setenv('AGRODOCTOR_RESEARCH_MODEL_DIR', str(tmp_path))
+    monkeypatch.delenv('GROQ_API_KEY', raising=False)
+    monkeypatch.setattr('app.doctor_models.image_quality', lambda _: [])
+    registry = DoctorRegistry(tmp_path / 'standard')
+    assert registry.capabilities()['research_leaf_model']['field_validated'] is False
+    green = Image.new('RGB', (320, 240), (0, 255, 0))
+    regular = registry.infer_research(green, 'potato')
+    assert regular['model']['version'] == 'test-research-export'
+    assert regular['classification']['top_label'] == 'Potato___Late_blight'
+    assert registry.infer_research(green, 'tomato')['classification']['rejection_reason'] == 'crop_mismatch'
+    red = Image.new('RGB', (320, 240), (255, 0, 0))
+    assert registry.infer_research(red, 'tomato')['classification']['rejection_reason'] == 'class_disabled'
+    card['artifact']['sha256'] = '0' * 64
+    card_path.write_text(json.dumps(card), encoding='utf-8')
+    assert registry.capabilities()['research_leaf_model']['available'] is False
+
+
 def test_matching_digest_corrupt_artifact_never_ready(tmp_path):
     from app.doctor_models import DoctorRegistry, CATALOG
     import hashlib

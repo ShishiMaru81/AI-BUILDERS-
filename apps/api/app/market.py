@@ -524,12 +524,24 @@ def admin_dashboard(user:Who):
             'analytics':{'user_count':len(users),'product_count':len(products),'order_count':len(os),'booked_bdt':s.m(sum((x.total_bdt for x in so if x.status!='cancelled'),Decimal(0))),'delivered_bdt':s.m(sum((x.total_bdt for x in so if x.status=='delivered'),Decimal(0)))},'policy':s.policy(db)}
 
 @router.get('/admin/market/{collection}')
-def admin_collection(collection:Literal['users','products','orders','auctions','reports','audit'],user:Who,offset:int=Query(default=0,ge=0),limit:int=Query(default=20,ge=1,le=100)):
+def admin_collection(collection:Literal['users','products','orders','auctions','reports','audit'],user:Who,offset:int=Query(default=0,ge=0),limit:int=Query(default=20,ge=1,le=100),search:str=Query(default='',max_length=100)):
     with s.transaction() as db:
         u=s.actor(db,user,['admin']);s.tick(db)
         model={'users':User,'products':Product,'orders':Order,'auctions':Auction,'reports':Report,'audit':Audit}[collection]
-        query=select(model).order_by(model.name if model is User else model.created_at.desc())
-        count=db.scalar(select(func.count()).select_from(model));rows=list(db.scalars(query.offset(offset).limit(limit)))
+        columns={
+            'users':(User.id,User.name,User.email,User.role),
+            'products':(Product.id,Product.name,Product.district,Product.status),
+            'orders':(Order.id,Order.customer_id),
+            'auctions':(Auction.id,Auction.state),
+            'reports':(Report.id,Report.reason,Report.status,Report.product_id,Report.order_id),
+            'audit':(Audit.id,Audit.event,Audit.entity_type,Audit.entity_id),
+        }[collection]
+        query=select(model)
+        if search.strip():
+            query=query.where(or_(*(column.icontains(search.strip(), autoescape=True) for column in columns)))
+        count=db.scalar(select(func.count()).select_from(query.subquery()))
+        query=query.order_by(model.name if model is User else model.created_at.desc(),model.id)
+        rows=list(db.scalars(query.offset(offset).limit(limit)))
         def serialize(row):
             if model is User:return {**user_view(row),'verification_status':db.get(Profile,row.id).verification_status if db.get(Profile,row.id) else 'unverified'}
             if model is Product:return s.product_view(db,row,u)

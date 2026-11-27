@@ -31,6 +31,7 @@ from sqlalchemy.orm import Session as DBSession
 
 from . import image_storage_root, public_demo_enabled
 from .identity import require_user, user_view
+from .admin_console import router as admin_console_router
 from .market_privacy import owner_export as market_owner_export, erase_account as erase_market_account
 from .market_auth import router as auth_router, AuthLimiter
 from .otp_auth import router as otp_router, demo_login_enabled, hosted_password_accounts_enabled, open_identity
@@ -123,7 +124,7 @@ async def request_headers(request: Request, call_next):
     request.state.request_id = uuid4().hex
     path = request.url.path.rstrip('/')
     if (public_demo_enabled() and request.method == 'POST' and path.startswith('/api/v1/auth/')
-            and path not in {'/api/v1/auth/demo', '/api/v1/auth/logout'}
+            and path not in {'/api/v1/auth/demo', '/api/v1/auth/logout', '/api/v1/auth/admin/login'}
             and not (path in {'/api/v1/auth/signup', '/api/v1/auth/password'} and hosted_password_accounts_enabled())):
         response = JSONResponse({'message': 'This account action is unavailable on this deployment.'}, status_code=403)
     else:
@@ -631,6 +632,9 @@ def ready(request: Request, db: Db):
 
 @app.exception_handler(RequestValidationError)
 async def validation_error(request: Request, error: RequestValidationError):
+    if request.url.path.rstrip('/') == '/api/v1/auth/admin/login':
+        return JSONResponse(status_code=422, content={'message': 'Enter a valid email address and password.'},
+                            headers={'Cache-Control': 'no-store'})
     if request.url.path in {'/api/v1/auth/otp/start', '/api/v1/auth/otp/verify', '/api/v1/auth/password', '/api/v1/auth/signup'}:
         first = error.errors()[0]
         field = first['loc'][-1]
@@ -916,7 +920,7 @@ def upload(
     symptoms: Annotated[str, Form(max_length=2000)] = '',
     crop: Annotated[str | None, Form()] = None,
     plant_part: Annotated[Literal['auto', 'leaf', 'other'], Form()] = 'auto',
-    screening_mode: Annotated[Literal['auto', 'local_leaf'], Form()] = 'auto',
+    screening_mode: Annotated[Literal['auto', 'local_leaf', 'research_leaf', 'research_produce'], Form()] = 'auto',
     locale: Annotated[Literal['en', 'bn'], Form()] = 'en',
     follow_up_image: Annotated[UploadFile | None, File()] = None,
     farmer_context: Annotated[str | None, Form(max_length=512)] = None,
@@ -940,8 +944,12 @@ def upload(
     if selected_crop is None:
         raise HTTPException(422, 'Select a crop to screen a photo.')
     local_retry = screening_mode == 'local_leaf'
+    research_part = {'research_leaf': 'leaf', 'research_produce': 'other'}.get(screening_mode)
     if local_retry and (plant_part != 'leaf' or selected_crop not in ('potato', 'tomato') or follow_up_image is not None):
         raise HTTPException(422, 'Local retry requires one potato or tomato leaf photo.')
+    if research_part and (plant_part != research_part or selected_crop not in ('potato', 'tomato')
+                          or follow_up_image is not None or p is not None):
+        raise HTTPException(422, 'Research preview requires one potato or tomato photo of the selected part without a plot.')
     if plot_crop is not None and selected_crop != plot_crop:
         raise HTTPException(422, 'Selected crop must match the plot crop. Choose or create a matching plot.')
     recent = [r for r in records(db, user, 'case') if r.created_at > (datetime.now(timezone.utc) - timedelta(minutes=1)).isoformat()]
@@ -949,7 +957,7 @@ def upload(
         raise HTTPException(429, 'Upload limit: six images per minute')
     data = read_upload(image)
     second_data = read_upload(follow_up_image) if follow_up_image is not None else None
-    if plant_part == 'other' and not use_vision:
+    if plant_part == 'other' and not use_vision and not research_part:
         raise HTTPException(503, 'Produce screening requires Groq vision. Configure the server API key.')
     if p is None or use_vision:
         limit_screening_preview(user.id, 2 if second_data is not None else 1)
@@ -958,7 +966,11 @@ def upload(
     slot = acquire_upload_slot()
     try:
         im = decode_photo(data)
-        if local_retry:
+        if research_part == 'other':
+            result = DoctorRegistry().infer_research(im, selected_crop, part='produce')
+        elif research_part == 'leaf':
+            result = DoctorRegistry().infer_research(im, selected_crop)
+        elif local_retry:
             result = {**DoctorRegistry().infer(im, selected_crop), 'fallback_reason': 'vision_unavailable'}
         elif use_vision:
             second = decode_photo(second_data) if second_data is not None else None
@@ -2120,6 +2132,7 @@ def confirm_chat_note(id: str, body: farmer_chat.SaveNote, user: Farmer):
         return _chat_response(thread)
 
 app.include_router(auth_router)
+app.include_router(admin_console_router)
 app.include_router(otp_router)
 
 from .market import router as market_router

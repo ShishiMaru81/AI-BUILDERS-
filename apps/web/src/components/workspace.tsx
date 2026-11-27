@@ -9,6 +9,7 @@ import {request,download,formatTime} from '@/lib/api';
 import type {Farm,Plot,Action,Case,Price,Model,Meta,Device,NotificationItem,PaginatedCases,User} from '@/lib/types';
 import {Marketplace} from './marketplace';
 import {AccountAccess} from './account-access';
+import {AdminConsole} from './admin-console';
 import {AgroRescue} from './agrorescue';
 import {FarmerChat} from './farmer-chat';
 import {DoctorStudio,CaseDetail,CaseList,CasePagination,useDoctorCapabilities,cropName} from './doctor-studio';
@@ -30,7 +31,7 @@ function App({locale,page}:{locale:'en'|'bn';page:string}){
  const [busy,setBusy]=useState(false);const [error,setError]=useState('');const [notice,setNotice]=useState('');const [mobile,setMobile]=useState(false);
  // Close mobile nav on Escape
  useEffect(()=>{const h=(e:KeyboardEvent)=>{if(e.key==='Escape'&&mobile)setMobile(false)};document.addEventListener('keydown',h);return()=>document.removeEventListener('keydown',h)},[mobile]);
- const route=page==='landing'&&session?(user?.role==='admin'?'marketplace/admin':user?.role==='customer'?'marketplace':'dashboard'):page;
+ const route=page==='landing'&&session?(user?.role==='customer'?'marketplace':'dashboard'):page;
  const active=route.split('/')[0];
  const farmerTools=active==='farm-tools';
  const greeting=user&&t(`Hello, ${user.gender==='male'?'Mr. ':user.gender==='female'?'Ms. ':''}${user.name}`,`স্বাগতম, ${user.gender==='male'?'জনাব ':user.gender==='female'?'মিস ':''}${user.name}`);
@@ -119,6 +120,13 @@ function SettingsView({locale,dark,setDark,user,perform}:{locale:string;dark:boo
  // Keep consent in sync if user preferences load after mount
  useEffect(()=>{if(user?.preferences)setConsent(user.preferences.retraining_consent)},[user?.preferences]);
  return <div className="two-grid"><Panel><h2>Your preferences</h2><label>Language<select value={lang} onChange={e=>setLang(e.target.value as 'en'|'bn')}><option value="en">English</option><option value="bn">বাংলা</option></select></label><label>Appearance<select value={dark?'dark':'light'} onChange={e=>setDark(e.target.value==='dark')}><option value="light">Light</option><option value="dark">Dark</option></select></label><label className="checkbox-label"><input type="checkbox" checked={consent} onChange={e=>setConsent(e.target.checked)}/>Allow future consideration of my images for retraining (requires additional review)</label><button className="btn primary" onClick={()=>perform(async()=>{await request('/me',{method:'PATCH',body:JSON.stringify({language:lang,theme:dark?'dark':'light',retraining_consent:consent})});if(lang!==locale)location.href=`/${lang}/settings`},'Preferences saved')}>Save preferences</button><p className="helper">Money: BDT · Rain: mm · Display time: Asia/Dhaka. Notifications stay inside the app.</p></Panel><Panel><h2>Your data, your control.</h2><p>Download your private records as JSON. Photo binaries are available through private case endpoints.</p><button className="btn secondary" onClick={()=>perform(()=>download('/me/export','agrosphere-export.json'),'Data exported')}><Download size={16}/>Export workspace</button><hr/><h3>Delete this demo workspace</h3><p>This permanently removes records, device readings, session and stored photos.</p><label>Type DELETE to enable deletion<input value={confirm} onChange={e=>setConfirm(e.target.value)}/></label><button className="btn danger" disabled={confirm!=='DELETE'} onClick={()=>perform(async()=>{await request('/me',{method:'DELETE'});localStorage.removeItem('agrosphere-token');location.href=`/${locale}`})}><Trash2 size={16}/>Delete my workspace</button></Panel></div>}
-export default function Workspace(props:{locale:'en'|'bn';page:string}){return <AppProviders locale={props.locale}><MotionConfig reducedMotion="user"><App {...props}/></MotionConfig></AppProviders>}
+function WorkspaceEntry(props:{locale:'en'|'bn';page:string}){
+ const {state,user}=useSession();
+ if(props.page==='admin'||props.page.startsWith('admin/')||(props.page==='landing'&&state==='authenticated'&&user?.role==='admin')){
+  return <AdminConsole locale={props.locale} section={props.page.split('/')[1]}/>;
+ }
+ return <App {...props}/>;
+}
+export default function Workspace(props:{locale:'en'|'bn';page:string}){return <AppProviders locale={props.locale}><MotionConfig reducedMotion="user"><WorkspaceEntry {...props}/></MotionConfig></AppProviders>}
 
 

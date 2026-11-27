@@ -42,8 +42,14 @@ export function DoctorStudio({plot,plots,plotsLoading,farms,farmStatus,retryFarm
  const capability=screeningCrops?.find(c=>c.id===crop);
  const matching=plots.filter(p=>p.crop===crop);const matches=plot?.crop===crop;
  const vision=capabilities?.provider==='groq';
- const showUpload=vision||part==='leaf';
- const canChoose=showUpload&&!plotsLoading&&!!capability?.available;
+ const isProduce=vision?context?.kind==='produce':part==='other';
+ const researchProduce=capabilities?.research_produce_model?.available&&
+  (crop==='tomato'||crop==='potato')&&isProduce;
+ const normalScreening=!!capability?.available&&(vision||part==='leaf');
+ const showUpload=vision||part==='leaf'||researchProduce;
+ const canResearch=capabilities?.research_leaf_model?.available&&
+  (crop==='tomato'||crop==='potato')&&!isProduce;
+ const canChoose=showUpload&&!plotsLoading&&(normalScreening||canResearch||researchProduce);
  useEffect(()=>()=>{generation.current++;flight.current?.abort()},[]);
  useEffect(()=>{
   if(!file)return;
@@ -59,11 +65,16 @@ export function DoctorStudio({plot,plots,plotsLoading,farms,farmStatus,retryFarm
   }
   setError('');setCanRetryLeaf(false);setResult(undefined);setFile(value);
  }
- async function screen(localLeaf=false){
-  if(locked.current||!file||!canChoose||creating)return;
+ async function screen(mode:'auto'|'local_leaf'|'research_leaf'|'research_produce'='auto'){
+  const researchLeaf=mode==='research_leaf';
+  const produce=mode==='research_produce';
+  const research=researchLeaf||produce;
+  const localLeaf=mode==='local_leaf';
+  const enabled=researchLeaf?canResearch:produce?researchProduce:normalScreening;
+  if(locked.current||!file||!canChoose||creating||!enabled)return;
   locked.current=true;setPending(true);setError('');setResult(undefined);
   const current=++generation.current;const controller=new AbortController();flight.current=controller;
-  const selection = localLeaf ? initialFarmerContext : context;
+  const selection = localLeaf||researchLeaf ? initialFarmerContext : context;
   if(localLeaf) setContext(selection);
   setCanRetryLeaf(false);
   const form=new FormData();
@@ -71,16 +82,16 @@ export function DoctorStudio({plot,plots,plotsLoading,farms,farmStatus,retryFarm
   form.append('crop',crop);
   form.append('locale',locale);
   const cloudPart = selection?.kind === 'produce' ? 'other' : selection?.kind ?? 'auto';
-  form.append('plant_part',vision ? cloudPart : part);
-  if(localLeaf) form.append('screening_mode','local_leaf');
+  form.append('plant_part',researchLeaf?'leaf':produce?'other':vision?cloudPart:part);
+  if(mode!=='auto') form.append('screening_mode',mode);
   if(selection) form.append('farmer_context',JSON.stringify(selection));
-  if(matches && plot){
+  if(!research && matches && plot){
    form.append('plot_id',plot.id);
    form.append('symptoms',symptoms);
   }
   try{
    const response=await request<DoctorScreening>('/doctor/cases',{method:'POST',body:form,signal:controller.signal});
-   if(current===generation.current&&!controller.signal.aborted){setResult(response);if(matches){await qc.invalidateQueries({queryKey:['cases']});await qc.invalidateQueries({queryKey:['actions']})}}
+   if(current===generation.current&&!controller.signal.aborted){setResult(response);if(!research&&matches){await qc.invalidateQueries({queryKey:['cases']});await qc.invalidateQueries({queryKey:['actions']})}}
   }catch(e){
    if(current===generation.current&&!controller.signal.aborted){
     setError((e as Error).message);
@@ -150,18 +161,24 @@ export function DoctorStudio({plot,plots,plotsLoading,farms,farmStatus,retryFarm
    <input ref={camera} aria-label={vision?t('Take a crop photo','ফসলের ছবি তুলুন'):'Take a leaf photo'} type="file" accept="image/jpeg,image/png,image/webp" capture="environment" hidden disabled={pending||!canChoose} onChange={e=>{choose(e.target.files?.[0]);e.target.value=''}}/>
    <small>{t('JPG, PNG or WebP · Up to 8 MB · Private storage','JPG, PNG বা WebP · সর্বোচ্চ ৮ মেগাবাইট · ব্যক্তিগত সংরক্ষণ')}</small>
   </div>
-  {vision&&<p className="helper">{t('Screening sends this photo to Groq for analysis. The app removes photo metadata first.', 'পরীক্ষার জন্য ছবিটি গ্রক-এ পাঠানো হবে। আগে ছবির মেটাডেটা সরানো হয়।')}</p>}
+  {vision&&<p className="helper">{canResearch||researchProduce
+    ?t('Standard screening sends the photo to Groq. The research preview runs locally.','সাধারণ পরীক্ষায় ছবিটি গ্রক-এ যায়। গবেষণার পরীক্ষা স্থানীয়ভাবে চলে।')
+    :t('Screening sends this photo to Groq for analysis. The app removes photo metadata first.', 'পরীক্ষার জন্য ছবিটি গ্রক-এ পাঠানো হবে। আগে ছবির মেটাডেটা সরানো হয়।')}</p>}
   <FarmerQuestions value={context} disabled={pending||creating} locale={locale} leafOnly={!vision}
     onChange={value=>{setContext(value);setCanRetryLeaf(false);setResult(undefined);setError('')}}/>
   {matches&&<label>{vision?t('Private plot note (optional)','জমির ব্যক্তিগত নোট (ঐচ্ছিক)'):t('What have you noticed? (Optional)','কী লক্ষণ দেখেছেন? (ঐচ্ছিক)')}<textarea maxLength={2000} disabled={pending} value={symptoms} onChange={e=>setSymptoms(e.target.value)} placeholder={t('Spots, yellowing, when symptoms began…','দাগ, হলুদ পাতা, লক্ষণ শুরুর সময়…')}/></label>}
   {error&&<div className="error" role="alert"><p>{error}</p>
-   {canRetryLeaf&&<button type="button" className="btn secondary" disabled={pending||!file} onClick={()=>void screen(true)}>
+   {canRetryLeaf&&<button type="button" className="btn secondary" disabled={pending||!file} onClick={()=>void screen('local_leaf')}>
     {t('This is a leaf · use local screening','এটি পাতার ছবি · স্থানীয় মডেল দিয়ে পরীক্ষা করুন')}
    </button>}
   </div>}
-  <button className="btn primary full" disabled={!file||!canChoose||pending||creating||catalogFetching&&!capabilities} onClick={()=>void screen()}>{pending?<LoaderCircle size={18} className="spin"/>:<ScanLine size={18}/>} {pending?t('Checking image…','ছবি পরীক্ষা হচ্ছে…'):matches?t('Screen & save observation','পরীক্ষা করুন ও সংরক্ষণ করুন'):t('Screen photo','ছবি পরীক্ষা করুন')}<ArrowRight size={17}/></button>
-  {!vision&&<p className="helper">{t('Research screening only. Confirm the crop yourself. Unknown diseases and non-leaf images may receive high scores; this is not a diagnosis.','এটি গবেষণা পর্যায়ের সহায়তা। ফসল নিজে নিশ্চিত করুন। অজানা রোগ বা পাতাবিহীন ছবিতেও বেশি স্কোর আসতে পারে; এটি নিশ্চিত রোগ নির্ণয় নয়।')}</p>}
-  {!vision&&capability&&<details><summary>{t('Supported conditions & limits','সমর্থিত অবস্থা ও সীমাবদ্ধতা')} ({capability.labels.length})</summary><p>{capability.labels.map(conditionName).join(' · ')}</p>{!capability.has_healthy_class&&<p className="error">{t('This crop has no healthy reference class. A healthy leaf cannot be ruled in or out.','এই ফসলের সুস্থ পাতার শ্রেণি নেই। সুস্থ কি না নিশ্চিত করা যায় না।')}</p>}<small>{capability.model_version} · {t('Not field-validated','মাঠ পর্যায়ে যাচাই করা হয়নি')}</small></details>}
+  {(vision||part==='leaf')&&<button className="btn primary full" disabled={!file||!canChoose||!normalScreening||pending||creating||catalogFetching&&!capabilities} onClick={()=>void screen()}>{pending?<LoaderCircle size={18} className="spin"/>:<ScanLine size={18}/>} {pending?t('Checking image…','ছবি পরীক্ষা হচ্ছে…'):matches?t('Screen & save observation','পরীক্ষা করুন ও সংরক্ষণ করুন'):t('Screen photo','ছবি পরীক্ষা করুন')}<ArrowRight size={17}/></button>}
+  {canResearch&&<button type="button" className="btn secondary full" disabled={!file||pending||creating||!canChoose}
+   onClick={()=>void screen('research_leaf')}>{t('Preview with research leaf model','গবেষণার পাতার মডেল দিয়ে পরীক্ষা করুন')}</button>}
+  {researchProduce&&<button type="button" className="btn secondary full" disabled={!file||pending||creating||!canChoose}
+   onClick={()=>void screen('research_produce')}>{t('Preview with research produce model','গবেষণার ফল ও কন্দের মডেল দিয়ে পরীক্ষা করুন')}</button>}
+  {!vision&&part==='leaf'&&<p className="helper">{t('Research screening only. Confirm the crop yourself. Unknown diseases and non-leaf images may receive high scores; this is not a diagnosis.','এটি গবেষণা পর্যায়ের সহায়তা। ফসল নিজে নিশ্চিত করুন। অজানা রোগ বা পাতাবিহীন ছবিতেও বেশি স্কোর আসতে পারে; এটি নিশ্চিত রোগ নির্ণয় নয়।')}</p>}
+  {!vision&&part==='leaf'&&capability&&<details><summary>{t('Supported conditions & limits','সমর্থিত অবস্থা ও সীমাবদ্ধতা')} ({capability.labels.length})</summary><p>{capability.labels.map(conditionName).join(' · ')}</p>{!capability.has_healthy_class&&<p className="error">{t('This crop has no healthy reference class. A healthy leaf cannot be ruled in or out.','এই ফসলের সুস্থ পাতার শ্রেণি নেই। সুস্থ কি না নিশ্চিত করা যায় না।')}</p>}<small>{capability.model_version} · {t('Not field-validated','মাঠ পর্যায়ে যাচাই করা হয়নি')}</small></details>}
  </>}</section>{showUpload&&<div className="stack">{result?<DoctorResult result={result} locale={locale} originalFile={file} onUpdate={setResult}/>:<section className="panel result-placeholder"><ScanLine size={38}/><h3>{t('Room for understanding.','ফসলকে বোঝার সুযোগ।')}</h3><p>{t('Your screening, possible conditions, model evidence and next steps will appear here.','পরীক্ষার ফল, সম্ভাব্য অবস্থা ও পরবর্তী করণীয় এখানে দেখুন।')}</p><span className="badge amber">{t('Uncertainty is part of the result','ফলাফলে অনিশ্চয়তা থাকে')}</span></section>}<section className="panel"><h3>{t('Photograph the affected area','আক্রান্ত অংশের ছবি তুলুন')}</h3>{[t('Use natural, even light.','প্রাকৃতিক ও সমান আলো ব্যবহার করুন।'),t('Get close and keep the camera steady.','কাছ থেকে স্থির ক্যামেরায় ছবি নিন।'),t('Include healthy tissue next to the damaged area.','আক্রান্ত অংশের পাশের সুস্থ অংশও ছবিতে রাখুন।'),t('Avoid filters and distracting backgrounds.','ফিল্টার ও জটিল পটভূমি এড়িয়ে চলুন।')].map((tip,i)=><div className="tip" key={tip}><span>{i+1}</span>{tip}</div>)}</section></div>}</div>
  <section className="panel"><h2>{t('Recent screenings','সাম্প্রতিক পরীক্ষা')} · {casesTotal}</h2>{casesError&&<p className="error" role="alert">{casesError}</p>}{casesFetching&&!cases.length?<p role="status">{t('Loading screenings…','পরীক্ষা লোড হচ্ছে…')}</p>:<CaseList cases={cases} locale={locale}/>}<CasePagination total={casesTotal} shown={cases.length} hasMore={casesHasMore} pending={casesFetching} onLoadMore={onLoadMore}/></section></>;
 }
@@ -189,7 +206,23 @@ function PlantPartGuide({crop,locale}:{crop:string;locale:Locale}){
 
 export function DoctorResult({result,locale='en',imgUrl,imgError,originalFile,onUpdate}:{result:DoctorScreening;locale?:Locale;imgUrl?:string;imgError?:string;originalFile?:File;onUpdate?:(updated:DoctorScreening)=>void}){
  const t=(en:string,bn:string)=>locale==='bn'?bn:en;const {data:capabilities}=useDoctorCapabilities();
- const submittedPhoto=imgUrl&&<img src={imgUrl} alt={result.assessment?t('Submitted crop photo','জমা দেওয়া ফসলের ছবি'):t('Submitted leaf photo','জমা দেওয়া পাতার ছবি')} style={{width:'100%',maxHeight:260,objectFit:'contain'}}/>;
+ const produceResearch=result.model.model_id==='agrodoctor-research-produce';
+ const submittedPhoto=imgUrl&&<img src={imgUrl} alt={produceResearch||result.assessment?t('Submitted crop photo','জমা দেওয়া ফসলের ছবি'):t('Submitted leaf photo','জমা দেওয়া পাতার ছবি')} style={{width:'100%',maxHeight:260,objectFit:'contain'}}/>;
+ if(produceResearch){
+  const damage=result.classification.top_label.endsWith('___Visible_damage');
+  return <section className="panel result ui-reveal" aria-label="Screening result">
+   {submittedPhoto}{imgError&&<p role="status">{imgError}</p>}
+   <span className="badge amber">{t('Research produce preview','ফল ও কন্দের গবেষণামূলক পরীক্ষা')}</span>
+   <h2>{result.classification.abstained?t('Unable to assess visible damage','দৃশ্যমান ক্ষতি বোঝা যায়নি'):
+    damage?t('Possible visible damage or decay','সম্ভাব্য দৃশ্যমান ক্ষতি বা পচন'):
+    t('The visible surface resembles sound produce','দৃশ্যমান অংশটি সুস্থ ফল বা কন্দের মতো দেখাচ্ছে')}</h2>
+   <p>{t('A photo cannot confirm the cause or tell you whether the produce is safe to eat.','ছবি দেখে ক্ষতির কারণ বা খাওয়া নিরাপদ কি না নিশ্চিত করা যায় না।')}</p>
+   <h3>{t('What to check next','এরপর কী দেখবেন')}</h3>
+   <ul><li>{t('Turn the item over and photograph it in even light.','ফল বা কন্দটি উল্টে সমান আলোতে ছবি তুলুন।')}</li>
+   <li>{t('Set visibly damaged items aside and check others from the same batch.','ক্ষতিগ্রস্ত ফল বা কন্দ আলাদা করে একই ব্যাচের বাকিগুলো দেখুন।')}</li></ul>
+   <div className="model-evidence"><strong>{result.model.version}</strong></div>
+  </section>;
+ }
  const askAboutResult=()=>{
   const finding=result.assessment;
   const observation=finding?[finding.subject,...finding.signs,finding.uncertainty].filter(Boolean).join(' '):
@@ -257,13 +290,16 @@ export function DoctorResult({result,locale='en',imgUrl,imgError,originalFile,on
   : classification.rejection_reason==='low_confidence' ? cropOptions.slice(0,2).map(option=>option.label.split('___').pop()!) : [];
  const visibleChecks=classification.abstained&&guide ? comparedLabels.filter(label=>Object.hasOwn(guide.conditions,label)) : [];
  const reasons:Record<string,string>={
+  class_disabled:t('This condition did not have enough validation evidence for a named result.','এই অবস্থার নাম বলার জন্য যাচাইয়ের তথ্য যথেষ্ট ছিল না।'),
   conflicting_leaf_views:blightPattern
    ? t('The center and the full photo resembled different blight references. Photograph both sides of an affected leaf and the stem next to healthy tissue.','ছবির মাঝের অংশ ও পুরো ছবি ভিন্ন ধরনের ধসা রোগের নমুনার সঙ্গে মিলেছে। একটি আক্রান্ত পাতার দুই পিঠ ও সুস্থ অংশসহ কাণ্ডের ছবি তুলুন।')
    : t('The center and the full photo gave different results. Photograph one affected leaf against a plain background.','ছবির মাঝের অংশ ও পুরো ছবির ফল মেলেনি। সাদামাটা পটভূমিতে একটি আক্রান্ত পাতার ছবি তুলুন।'),
   crop_mismatch:t('The model’s closest match was a different crop. Keep your crop selection if it is correct. Take a new photo with one affected leaf filling the frame.','মডেলটি অন্য ফসলের ছবির সঙ্গে বেশি মিল পেয়েছে। নির্বাচিত ফসল সঠিক হলে সেটিই রাখুন। একটি আক্রান্ত পাতা দিয়ে ফ্রেম ভরে নতুন ছবি তুলুন।'),model_disagreement:t('The two screening models disagreed. Ask an adviser to review the leaf.','দুটি মডেলের ফল মেলেনি। পাতাটি একজন কৃষি কর্মকর্তাকে দেখান।'),unconfirmed_leaf_screen:t('A second screening could not confirm the first result.','দ্বিতীয় পরীক্ষায় প্রথম ফলটি নিশ্চিত করা যায়নি।'),low_confidence:t('The model score did not meet the research screening threshold.','মডেলের স্কোর পরীক্ষার সীমা পূরণ করেনি।'),image_quality:t('The photo quality checks did not pass. Take a clearer photo.','ছবির মান যথেষ্ট নয়। আরও পরিষ্কার ছবি নিন।')};
  return <section className="panel result ui-reveal" aria-label="Screening result">
   {submittedPhoto}{imgError&&<p role="status">{imgError}</p>}
-  <span className="badge amber">{result.fallback_reason==='vision_unavailable'?t('Local leaf screening','স্থানীয় পাতার মডেলের পরীক্ষা'):result.meta.mode} · {cropName(result.crop||'tomato',capabilities,locale)}</span><p>{result.plot_name||result.plot_id||t('Screening preview','পরীক্ষার প্রাথমিক ফল')}</p>
+  <span className="badge amber">{result.model.model_id==='agrodoctor-research-leaf'
+   ?t('Research leaf preview','গবেষণার পাতার মডেলের পরীক্ষা')
+   :result.fallback_reason==='vision_unavailable'?t('Local leaf screening','স্থানীয় পাতার মডেলের পরীক্ষা'):result.meta.mode} · {cropName(result.crop||'tomato',capabilities,locale)}</span><p>{result.plot_name||result.plot_id||t('Screening preview','পরীক্ষার প্রাথমিক ফল')}</p>
   {result.fallback_reason==='vision_unavailable'&&<p>{t('The online service was unavailable. This result comes from the local leaf model.','অনলাইন সেবা পাওয়া যায়নি। এই ফলটি স্থানীয় পাতার মডেল থেকে এসেছে।')}</p>}
   <h2>{blightPattern?t('Blight-like pattern · cause uncertain','ধসা রোগের মতো লক্ষণ · কারণ অনিশ্চিত'):result.classification.abstained?t('Unable to classify reliably','নির্ভরযোগ্যভাবে শ্রেণিবিন্যাস করা যায়নি'):`${t('Possible','সম্ভাব্য')}: ${conditionName(result.classification.top_label)}`}</h2>
   <p>{reasons[result.classification.rejection_reason||'']||t('Screening support only. Ask a qualified agronomist to review symptoms.','এটি প্রাথমিক সহায়তা। কৃষিবিদের পরামর্শ নিন।')}</p>
